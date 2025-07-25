@@ -37,7 +37,6 @@ eventOut:
         topic: "/anomaly"
         QoS: 10
 
-
 mqtt_broker: "localhost"
 mqtt_port: 1883
 
