@@ -1,15 +1,16 @@
 FROM python:3.10
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /app
+ADD . c:/src/app
+WORKDIR c:/src/app
+ENV PYTHONPATH c:/src/app:$PYTHONPATH
 
-ENV PYTHONPATH="/app:{$PYTHONPATH}"
+COPY requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# COPY ../../../Realization /app/
-
+COPY config.yaml ./
+COPY messages.py ./
 COPY . .
 
-RUN pip3 install --no-cache-dir -r Deployment/Options/Option2/PC1/requirements.txt
-
-CMD ["python3", "Deployment/Nodes/Analysis/Analysis.py"]
+CMD ["python3", "Analysis.py"]
 

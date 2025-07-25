@@ -9,16 +9,53 @@
 from rpio.clientLibraries.rpclpy.node import Node
 import json
 import time
-import time
-import sys
-import os
+
+#<!-- cc_include END--!>
+
+#<!-- cc_code START--!>
+
+### USER Defined Functions
+
+#<!-- cc_code END--!>
+
+class Trustworthiness(Node):
+
+    def __init__(self, config='config.yaml',verbose=True):
+        super().__init__(config=config,verbose=verbose)
+
+        self._name = "Trustworthiness"
+        self.logger.info("Trustworthiness instantiated")
+
+        #<!-- cc_init START--!>
 
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.abspath(os.path.join(current_dir, "../../../"))
-sys.path.insert(0, parent_dir)
 
-from Realization.MAPLEK import Trustworthiness
+        #<!-- cc_init END--!>
+
+    # -----------------------------AUTO-GEN SKELETON FOR planner-----------------------------
+    def t_a(self,msg):
+        self.publish_event("stage", {'Str':'m'})
+        time.sleep(0.1)
+        self.publish_event("stage", {'Str': 'a'})
+
+    def t_p(self, msg):
+        self.publish_event("stage", {'Str': 'p'})
+    def t_l(self, msg):
+        self.publish_event("stage", {'Str': 'l'})
+    def t_e(self, msg):
+        self.publish_event("stage", {'Str': 'e'})
+
+    def trust_check(self, msg):
+        self.logger.info(msg)
+
+    def register_callbacks(self):
+        self.register_event_callback(event_key='anomaly', callback=self.t_a)     # LINK <eventTrigger> anomaly
+        self.register_event_callback(event_key='new_plan', callback=self.t_p)
+        self.register_event_callback(event_key='isLegit', callback=self.t_l)
+        self.register_event_callback(event_key='/spin_config', callback=self.t_e)
+        self.register_event_callback(event_key='maple', callback=self.trust_check)
+        # self.register_event_callback(event_key='anomaly', callback=self.planner)        # LINK <inport> anomaly
+
 def main(args=None):
 
     node = Trustworthiness(config='config.yaml')

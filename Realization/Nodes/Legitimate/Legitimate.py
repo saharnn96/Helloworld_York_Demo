@@ -1,13 +1,52 @@
+# **********************************************************************************
+# * Copyright (C) 2024-present Bert Van Acker (B.MKR) <bert.vanacker@uantwerpen.be>
+# *
+# * This file is part of the roboarch R&D project.
+# *
+# * RAP R&D concepts can not be copied and/or distributed without the express
+# * permission of Bert Van Acker
+# **********************************************************************************
+from rpclpy.node import Node
+from .messages import *
 import time
-import sys
-import os
+#<!-- cc_include START--!>
+import json
+#<!-- cc_include END--!>
+
+#<!-- cc_code START--!>
+# user code here
+#<!-- cc_code END--!>
+
+class Legitimate(Node):
+
+    def __init__(self, config='config.yaml',verbose=True):
+        super().__init__(config=config,verbose=verbose)
+
+        self._name = "Legitimate"
+        self.logger.info("Legitimate instantiated")
+
+        #<!-- cc_init START--!>
+        # user includes here
+        #<!-- cc_init END--!>
+    # -----------------------------AUTO-GEN SKELETON FOR executer-----------------------------
+    def legitimate(self,msg):
+        directions = self.read_knowledge("directions",queueSize=1)
+        _Direction = Direction()
+
+        #<!-- cc_code_executer START--!>
+
+        # user code here for executer
 
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.abspath(os.path.join(current_dir, "../../../"))
-sys.path.insert(0, parent_dir)
+        #<!-- cc_code_executer END--!>
+        for i in range(5):
+            self.logger.info("Legitimating")
+            time.sleep(0.1)
+        self.publish_event(PlanisLegit)    # LINK <outport> spin_config
 
-from Realization.MAPLEK import Legitimate
+    def register_callbacks(self):
+        self.register_event_callback(event_key='new_plan', callback=self.legitimate)        # LINK <inport> new_plan
+
 def main(args=None):
 
     node = Legitimate(config='config.yaml')

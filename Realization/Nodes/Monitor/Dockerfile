@@ -1,18 +1,16 @@
 FROM python:3.10
 ENV PYTHONUNBUFFERED 1
 
+ADD . c:/src/app
+WORKDIR c:/src/app
+ENV PYTHONPATH c:/src/app:$PYTHONPATH
 
-WORKDIR /app
+COPY requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-ENV PYTHONPATH="/app:{$PYTHONPATH}"
-
-# COPY ../../../Realization /app/
-
+COPY config.yaml ./
+COPY messages.py ./
 COPY . .
 
-RUN pip3 install --no-cache-dir -r Deployment/Options/Option2/PC1/requirements.txt
+CMD ["python3", "Monitor.py"]
 
-
-CMD ["python3", "Deployment/Nodes/Monitor/Monitor.py"]
-
-# CMD ["tail", "-f", "/dev/null"]
