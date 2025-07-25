@@ -8,7 +8,7 @@ from tkinter import messagebox
 import random
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from rpclpy.CommunicationManager import CommunicationManager
+from rpio.clientLibraries.rpclpy.CommunicationManager import CommunicationManager
 
 # MQTT setup
 MQTT_BROKER = "localhost"
