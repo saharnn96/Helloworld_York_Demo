@@ -34,7 +34,7 @@ RUN useradd --create-home --shell /bin/bash turtlebot && \
 USER turtlebot
 
 # Expose the port that Dash runs on
-EXPOSE 8050
+EXPOSE 8051
 
 # Run the Dash application
 CMD ["python", "dash_turtlebotsim.py"]

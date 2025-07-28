@@ -450,7 +450,7 @@ def initialize_client():
 if __name__ == "__main__":
     # Get configuration from environment variables
     dash_host = os.getenv('DASH_HOST', '0.0.0.0')
-    dash_port = int(os.getenv('DASH_PORT', '8050'))
+    dash_port = int(os.getenv('DASH_PORT', '8051'))
     dash_debug = os.getenv('DASH_DEBUG', 'False').lower() == 'true'
     
     # Initialize MQTT client

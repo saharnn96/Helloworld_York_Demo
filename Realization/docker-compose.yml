@@ -32,6 +32,24 @@ services:
       dockerfile: Dockerfile
     container_name: turtlebot_simulator
     ports:
+      - "8051:8051"
+    environment:
+      - DASH_HOST=0.0.0.0
+      - DASH_PORT=8051
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - rap_network
+
+  dashboard:
+    build: 
+      context: ./Dashboard
+      dockerfile: Dockerfile
+    container_name: dashboard
+    ports:
       - "8050:8050"
     environment:
       - DASH_HOST=0.0.0.0
@@ -43,6 +61,26 @@ services:
         condition: service_healthy
     networks:
       - rap_network
+
+    
+  orchestrator:
+    build:
+      context: ./Orchestrator
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/repo  # Mount whole repo so orchestrator can access Dockerfiles
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - PYTHONUNBUFFERED=1
+      - REDIS_HOST=redis
+      - COMPOSE_NAME=myTestApp
+      - NODES=simulator,dashboard,main-app
+    networks:
+      - rap_network
+
+    restart: unless-stopped
 
 networks:
   rap_network:
