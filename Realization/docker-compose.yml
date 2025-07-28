@@ -76,7 +76,7 @@ services:
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=redis
       - COMPOSE_NAME=myTestApp
-      - NODES=simulator,dashboard,main-app
+      - NODES=turtlebot_simulator,dashboard,main-app
     networks:
       - rap_network
 
