@@ -1,0 +1,26 @@
+# Core dependencies for TurtleBot LiDAR Occlusion Simulator
+
+# Numerical computing
+numpy>=1.21.0
+
+# MQTT communication
+paho-mqtt>=1.6.0
+
+# Plotting and visualization (Tkinter version)
+matplotlib>=3.5.0
+
+# Web-based dashboard (Dash version)
+dash>=2.14.0
+dash-bootstrap-components>=1.4.0
+plotly>=5.15.0
+
+# RobosapiensIO for communication management
+robosapiensio>=0.4.0
+
+# Standard library modules (no installation needed):
+# - time
+# - threading  
+# - json
+# - tkinter (included with Python)
+# - random
+# - unittest (included with Python)

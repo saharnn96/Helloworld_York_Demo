@@ -16,7 +16,7 @@ POSE_TOPIC = "/pose"
 SCAN_TOPIC = "/Scan"
 SPIN_CONFIG_TOPIC = "/spin_config"
 
-# TurtleBotSim class
+# TurtleBotSim classc:\Users\dell\Documents\Helloworld_York_Demo\Realization\Simulator\Turtlebotsim.py
 class TurtleBotSim:
     def __init__(self):
         self.position = [0, 0]

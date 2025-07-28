@@ -7,11 +7,11 @@ Monitor_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: localhost
+      broker: redis
       port: 1883
       topic: logs
     redis:
-      host: localhost
+      host: redis
       port: 6379
       channel: logs
   knowledgeIn:
@@ -42,15 +42,15 @@ Monitor_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: localhost
+    host: redis
     port: 6379
     db: 0
 
@@ -63,11 +63,11 @@ Analysis_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: localhost
+      broker: redis
       port: 1883
       topic: logs
     redis:
-      host: localhost
+      host: redis
       port: 6379
       channel: logs
   knowledgeIn:
@@ -98,15 +98,15 @@ Analysis_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: localhost
+    host: redis
     port: 6379
     db: 0
 
@@ -119,11 +119,11 @@ Plan_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: localhost
+      broker: redis
       port: 1883
       topic: logs
     redis:
-      host: localhost
+      host: redis
       port: 6379
       channel: logs
   knowledgeIn:
@@ -166,15 +166,15 @@ Plan_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: localhost
+    host: redis
     port: 6379
     db: 0
 
@@ -187,11 +187,11 @@ Execute_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: localhost
+      broker: redis
       port: 1883
       topic: logs
     redis:
-      host: localhost
+      host: redis
       port: 6379
       channel: logs
   knowledgeIn:
@@ -240,15 +240,15 @@ Execute_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: localhost
+    host: redis
     port: 6379
     db: 0
 
@@ -261,11 +261,11 @@ Legitimate_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: localhost
+      broker: redis
       port: 1883
       topic: logs
     redis:
-      host: localhost
+      host: redis
       port: 6379
       channel: logs
   knowledgeIn:
@@ -290,15 +290,15 @@ Legitimate_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: localhost
+    host: redis
     port: 6379
     db: 0
 
@@ -311,11 +311,11 @@ Trustworthiness_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: localhost
+      broker: redis
       port: 1883
       topic: logs
     redis:
-      host: localhost
+      host: redis
       port: 6379
       channel: logs
   knowledgeIn:
@@ -376,14 +376,14 @@ Trustworthiness_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: localhost
+    host: redis
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: localhost
+    host: redis
     port: 6379
     db: 0

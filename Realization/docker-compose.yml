@@ -12,14 +12,38 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
-
+    networks:
+      - rap_network
   main-app:
     build: .
     container_name: main-app
     depends_on:
       redis:
         condition: service_healthy
-    network_mode: "host"
     environment:
-      - REDIS_HOST=localhost
+      - REDIS_HOST=redis
     restart: unless-stopped
+    networks:
+      - rap_network
+  
+  simulator:
+    build: 
+      context: ./Simulator
+      dockerfile: Dockerfile
+    container_name: turtlebot_simulator
+    ports:
+      - "8050:8050"
+    environment:
+      - DASH_HOST=0.0.0.0
+      - DASH_PORT=8050
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - rap_network
+
+networks:
+  rap_network:
+    driver: bridge
