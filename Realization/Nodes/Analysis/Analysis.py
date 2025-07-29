@@ -19,6 +19,7 @@ import traceback
 import numpy as np
 import pickle
 from matplotlib import pyplot as plt
+from rpio.clientLibraries.rpclpy.utils import timeit_callback
 #<!-- cc_include END--!>
 
 #<!-- cc_code START--!>
@@ -40,7 +41,7 @@ def lidar_mask_from_scan(scan) -> BoolLidarMask:
         base_angle=Fraction(2, len(scan.get("ranges"))),
     )
 #<!-- cc_code END--!>
-
+@timeit_callback
 class Analysis(Node):
 
     def __init__(self, config='config.yaml',verbose=True):

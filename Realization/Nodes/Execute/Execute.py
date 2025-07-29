@@ -11,6 +11,7 @@ import json
 from rpio.clientLibraries.rpclpy.node import Node
 from .messages import *
 import time
+from rpio.clientLibraries.rpclpy.utils import timeit_callback
 #<!-- cc_include START--!>
 # user includes here
 #<!-- cc_include END--!>
@@ -33,6 +34,7 @@ class Execute(Node):
         #<!-- cc_init END--!>
 
     # -----------------------------AUTO-GEN SKELETON FOR executer-----------------------------
+    @timeit_callback
     def executer(self,msg):
         isLegit = self.read_knowledge("isLegit",queueSize=1)
         directions = self.read_knowledge("directions",queueSize=1)

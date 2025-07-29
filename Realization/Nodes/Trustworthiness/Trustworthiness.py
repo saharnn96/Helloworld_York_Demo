@@ -9,6 +9,7 @@
 from rpio.clientLibraries.rpclpy.node import Node
 import json
 import time
+from rpio.clientLibraries.rpclpy.utils import timeit_callback
 
 #<!-- cc_include END--!>
 
@@ -44,7 +45,7 @@ class Trustworthiness(Node):
         self.publish_event("stage", {'Str': 'l'})
     def t_e(self, msg):
         self.publish_event("stage", {'Str': 'e'})
-
+    @timeit_callback
     def trust_check(self, msg):
         self.logger.info(msg)
 

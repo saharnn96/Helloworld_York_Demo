@@ -8,9 +8,12 @@
 # **********************************************************************************
 from rpio.clientLibraries.rpclpy.node import Node
 from .messages import *
+from rpio.clientLibraries.rpclpy.utils import timeit_callback
+
 import time
 #<!-- cc_include START--!>
 import json
+
 #<!-- cc_include END--!>
 
 #<!-- cc_code START--!>
@@ -58,6 +61,7 @@ class Monitor(Node):
         #<!-- cc_init END--!>
 
     # -----------------------------AUTO-GEN SKELETON FOR monitor_data-----------------------------
+    @timeit_callback
     def monitor_data(self,msg):
         _LaserScan = LaserScan()
 

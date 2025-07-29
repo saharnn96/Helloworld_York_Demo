@@ -9,6 +9,7 @@
 from rpio.clientLibraries.rpclpy.node import Node
 from .messages import *
 import time
+from rpio.clientLibraries.rpclpy.utils import timeit_callback
 #<!-- cc_include START--!>
 from fractions import Fraction
 from lidarocclusion.masks import BoolLidarMask
@@ -98,6 +99,7 @@ class Plan(Node):
         #<!-- cc_init END--!>
 
     # -----------------------------AUTO-GEN SKELETON FOR planner-----------------------------
+    @timeit_callback
     def planner(self,msg):
         _Direction = Direction()
 

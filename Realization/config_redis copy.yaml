@@ -11,9 +11,9 @@ Monitor_Config:
       port: 1883
       topic: logs
     redis:
-      host: redis
+      host: localhost
       port: 6379
-      channel: Monitor_logs
+      channel: Monitor:logs
   knowledgeIn:
     properties: null
   knowledgeOut:
@@ -42,15 +42,15 @@ Monitor_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: redis
+    host: localhost
     port: 6379
     db: 0
 
@@ -67,7 +67,7 @@ Analysis_Config:
       port: 1883
       topic: logs
     redis:
-      host: redis
+      host: localhost
       port: 6379
       channel: Analysis:logs
   knowledgeIn:
@@ -98,15 +98,15 @@ Analysis_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: redis
+    host: localhost
     port: 6379
     db: 0
 
@@ -123,7 +123,7 @@ Plan_Config:
       port: 1883
       topic: logs
     redis:
-      host: redis
+      host: localhost
       port: 6379
       channel: Plan:logs
   knowledgeIn:
@@ -166,15 +166,15 @@ Plan_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: redis
+    host: localhost
     port: 6379
     db: 0
 
@@ -191,7 +191,7 @@ Execute_Config:
       port: 1883
       topic: logs
     redis:
-      host: redis
+      host: localhost
       port: 6379
       channel: Execute:logs
   knowledgeIn:
@@ -240,15 +240,15 @@ Execute_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: redis
+    host: localhost
     port: 6379
     db: 0
 
@@ -265,7 +265,7 @@ Legitimate_Config:
       port: 1883
       topic: logs
     redis:
-      host: redis
+      host: localhost
       port: 6379
       channel: Legitimate:logs
   knowledgeIn:
@@ -290,15 +290,15 @@ Legitimate_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: redis
+    host: localhost
     port: 6379
     db: 0
 
@@ -315,7 +315,7 @@ Trustworthiness_Config:
       port: 1883
       topic: logs
     redis:
-      host: redis
+      host: localhost
       port: 6379
       channel: logs
   knowledgeIn:
@@ -376,14 +376,14 @@ Trustworthiness_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Message_Manager_Config:
     protocol: redis
-    host: redis
+    host: localhost
     port: 6379
   Knowledge_Config:
     knowledge_type: redis
-    host: redis
+    host: localhost
     port: 6379
     db: 0

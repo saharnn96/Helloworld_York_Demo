@@ -8,6 +8,7 @@
 # **********************************************************************************
 from rpclpy.node import Node
 from .messages import *
+from rpio.clientLibraries.rpclpy.utils import timeit_callback
 import time
 #<!-- cc_include START--!>
 import json
@@ -29,6 +30,7 @@ class Legitimate(Node):
         # user includes here
         #<!-- cc_init END--!>
     # -----------------------------AUTO-GEN SKELETON FOR executer-----------------------------
+    @timeit_callback
     def legitimate(self,msg):
         directions = self.read_knowledge("directions",queueSize=1)
         _Direction = Direction()
