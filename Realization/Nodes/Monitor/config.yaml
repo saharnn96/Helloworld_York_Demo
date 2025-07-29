@@ -1,62 +1,54 @@
-logger:
-  endpoints:
-    - endpoint:
-        type: "logging"
-        name: "RemoteLog"
-        class: "LogMessage"
-        topic: "/RemoteLog"
-        QoS: 10
-
+Logger_Config:
+  log_level: DEBUG
+  logger_type: redis
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  terminal: {}
+  file:
+    filename: MAPLE.log
+  mqtt:
+    broker: redis
+    port: 1883
+    topic: logs
+  redis:
+    host: redis
+    port: 6379
+    channel: Monitor:logs
 knowledgeIn:
-  properties:
-
+  properties: null
 knowledgeOut:
   properties:
     - property:
-        type: "data"
-        name: "laser_scan"
-        class: "laser_scan"
-        topic: "/laser_scan"
+        type: data
+        name: laser_scan
+        class: laser_scan
+        topic: /laser_scan
         QoS: 10
-
 eventIn:
   properties:
     - property:
-        type: "event"
-        name: "/Scan"
+        type: event
+        name: /Scan
         class: "-"
-        topic: "/Scan"
+        topic: /Scan
         QoS: 10
-
 eventOut:
   properties:
     - property:
-        type: "event"
-        name: "new_data"
+        type: event
+        name: new_data
         class: "-"
-        topic: "/new_data"
+        topic: /new_data
         QoS: 10
-
-
-mqtt_broker: "localhost"
-mqtt_port: 1883
-
-mqtt_subscribe_topics:
-  - "/Scan"
-
-mqtt_publish_topics:
-  - "new_data"
-
-redis_host: "localhost"
-redis_port: 6379
-
-logging:
-  level: "DEBUG"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "MAPE_test.log"
-
-knowledge_config:
-  storage_type: "global"
-  redis_host: "localhost"
-  redis_port: 6379
-  redis_db: 0
+Event_Manager_Config:
+  protocol: redis
+  host: redis
+  port: 6379
+Message_Manager_Config:
+  protocol: redis
+  host: redis
+  port: 6379
+Knowledge_Config:
+  knowledge_type: redis
+  host: redis
+  port: 6379
+  db: 0

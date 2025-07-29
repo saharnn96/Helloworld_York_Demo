@@ -1,80 +1,72 @@
-logger:
-  endpoints:
-    - endpoint:
-        type: "logging"
-        name: "RemoteLog"
-        class: "LogMessage"
-        topic: "/RemoteLog"
-        QoS: 10
-
+Logger_Config:
+  log_level: DEBUG
+  logger_type: redis
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  terminal: {}
+  file:
+    filename: MAPLE.log
+  mqtt:
+    broker: redis
+    port: 1883
+    topic: logs
+  redis:
+    host: redis
+    port: 6379
+    channel: Execute:logs
 knowledgeIn:
   properties:
     - property:
-        type: "data"
-        name: "isLegit"
-        class: "isLegit"
-        topic: "/isLegit"
+        type: data
+        name: isLegit
+        class: isLegit
+        topic: /isLegit
         QoS: 10
     - property:
-        type: "data"
-        name: "directions"
-        class: "directions"
-        topic: "/directions"
+        type: data
+        name: directions
+        class: directions
+        topic: /directions
         QoS: 10
-
 knowledgeOut:
   properties:
     - property:
-        type: "data"
-        name: "spin_config"
-        class: "spin_config"
-        topic: "/spin_config"
+        type: data
+        name: spin_config
+        class: spin_config
+        topic: /spin_config
         QoS: 10
-
 eventIn:
   properties:
     - property:
-        type: "event"
-        name: "new_plan"
+        type: event
+        name: new_plan
         class: "-"
-        topic: "/new_plan"
+        topic: /new_plan
         QoS: 10
     - property:
-        type: "event"
-        name: "isLegit"
+        type: event
+        name: isLegit
         class: "-"
-        topic: "/isLegit"
+        topic: /isLegit
         QoS: 10
-
 eventOut:
   properties:
     - property:
-        type: "event"
-        name: "/spin_config"
+        type: event
+        name: /spin_config
         class: "-"
-        topic: "/spin_config"
+        topic: /spin_config
         QoS: 10
-
-
-mqtt_broker: "localhost"
-mqtt_port: 1883
-
-mqtt_subscribe_topics:
-  - "new_plan"
-
-mqtt_publish_topics:
-  - "/spin_config"
-
-redis_host: "localhost"
-redis_port: 6379
-
-logging:
-  level: "DEBUG"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "MAPE_test.log"
-
-knowledge_config:
-  storage_type: "global"
-  redis_host: "localhost"
-  redis_port: 6379
-  redis_db: 0
+Event_Manager_Config:
+  protocol: redis
+  host: redis
+  port: 6379
+Message_Manager_Config:
+  protocol: redis
+  host: redis
+  port: 6379
+Knowledge_Config:
+  knowledge_type: redis
+  host: redis
+  port: 6379
+  db: 0

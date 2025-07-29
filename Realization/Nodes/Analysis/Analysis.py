@@ -7,8 +7,9 @@
 # * permission of Bert Van Acker
 # **********************************************************************************
 from rpio.clientLibraries.rpclpy.node import Node
-from .messages import *
+from messages import *
 import time
+import yaml
 #<!-- cc_include START--!>
 from fractions import Fraction
 from lidarocclusion.masks import BoolLidarMask, ProbLidarMask
@@ -41,7 +42,7 @@ def lidar_mask_from_scan(scan) -> BoolLidarMask:
         base_angle=Fraction(2, len(scan.get("ranges"))),
     )
 #<!-- cc_code END--!>
-@timeit_callback
+
 class Analysis(Node):
 
     def __init__(self, config='config.yaml',verbose=True):
@@ -74,6 +75,7 @@ class Analysis(Node):
         #<!-- cc_init END--!>
 
     # -----------------------------AUTO-GEN SKELETON FOR analyse_scan_data-----------------------------
+    @timeit_callback
     def analyse_scan_data(self,msg):
         laser_scan = self.read_knowledge("laser_scan",queueSize=1)
         laser_scan_cls = self.read_knowledge(LaserScan)
@@ -151,8 +153,13 @@ class Analysis(Node):
         self.register_event_callback(event_key='new_data', callback=self.analyse_scan_data)     # LINK <eventTrigger> new_data
 
 def main(args=None):
-
-    node = Analysis(config='config.yaml')
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+    except:
+        raise Exception("Config file not found")
+    
+    node = Analysis(config=config)
     node.register_callbacks()
     node.start()
 

@@ -1,74 +1,66 @@
-logger:
-  endpoints:
-    - endpoint:
-        type: "logging"
-        name: "RemoteLog"
-        class: "LogMessage"
-        topic: "/RemoteLog"
-        QoS: 10
-
+Logger_Config:
+  log_level: DEBUG
+  logger_type: redis
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  terminal: {}
+  file:
+    filename: MAPLE.log
+  mqtt:
+    broker: redis
+    port: 1883
+    topic: logs
+  redis:
+    host: redis
+    port: 6379
+    channel: Plan:logs
 knowledgeIn:
-  properties:
-
+  properties: null
 knowledgeOut:
   properties:
     - property:
-        type: "data"
-        name: "new_plan"
-        class: "new_plan"
-        topic: "/new_plan"
+        type: data
+        name: new_plan
+        class: new_plan
+        topic: /new_plan
         QoS: 10
     - property:
-        type: "data"
-        name: "direction"
-        class: "direction"
-        topic: "/direction"
+        type: data
+        name: direction
+        class: direction
+        topic: /direction
         QoS: 10
-
 eventIn:
   properties:
     - property:
-        type: "event"
-        name: "anomaly"
+        type: event
+        name: anomaly
         class: "-"
-        topic: "/anomaly"
+        topic: /anomaly
         QoS: 10
     - property:
-        type: "event"
-        name: "anomaly"
+        type: event
+        name: anomaly
         class: "-"
-        topic: "/anomaly"
+        topic: /anomaly
         QoS: 10
-
 eventOut:
   properties:
     - property:
-        type: "plan"
-        name: "new_plan"
+        type: plan
+        name: new_plan
         class: "-"
-        topic: "/new_plan"
+        topic: /new_plan
         QoS: 10
-
-
-mqtt_broker: "localhost"
-mqtt_port: 1883
-
-mqtt_subscribe_topics:
-  - "anomaly"
-
-mqtt_publish_topics:
-  - "new_plan"
-
-redis_host: "localhost"
-redis_port: 6379
-
-logging:
-  level: "DEBUG"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "MAPE_test.log"
-
-knowledge_config:
-  storage_type: "global"
-  redis_host: "localhost"
-  redis_port: 6379
-  redis_db: 0
+Event_Manager_Config:
+  protocol: redis
+  host: redis
+  port: 6379
+Message_Manager_Config:
+  protocol: redis
+  host: redis
+  port: 6379
+Knowledge_Config:
+  knowledge_type: redis
+  host: redis
+  port: 6379
+  db: 0

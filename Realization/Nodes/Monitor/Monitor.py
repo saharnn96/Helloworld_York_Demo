@@ -7,10 +7,12 @@
 # * permission of Bert Van Acker
 # **********************************************************************************
 from rpio.clientLibraries.rpclpy.node import Node
-from .messages import *
+from messages import *
 from rpio.clientLibraries.rpclpy.utils import timeit_callback
 
 import time
+import yaml
+
 #<!-- cc_include START--!>
 import json
 
@@ -86,8 +88,13 @@ class Monitor(Node):
         self.register_event_callback(event_key='/Scan', callback=self.monitor_data)     # LINK <eventTrigger> Scan
 
 def main(args=None):
-
-    node = Monitor(config='config.yaml')
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+    except:
+        raise Exception("Config file not found")
+    
+    node = Monitor(config=config)
     node.register_callbacks()
     node.start()
 

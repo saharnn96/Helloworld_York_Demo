@@ -13,7 +13,7 @@ Monitor_Config:
     redis:
       host: redis
       port: 6379
-      channel: Monitor_logs
+      channel: Monitor:logs
   knowledgeIn:
     properties: null
   knowledgeOut:

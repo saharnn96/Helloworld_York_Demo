@@ -14,17 +14,17 @@ services:
       retries: 5
     networks:
       - rap_network
-  main-app:
-    build: .
-    container_name: main-app
-    depends_on:
-      redis:
-        condition: service_healthy
-    environment:
-      - REDIS_HOST=redis
-    restart: unless-stopped
-    networks:
-      - rap_network
+  # main-app:
+  #   build: .
+  #   container_name: main-app
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     - REDIS_HOST=redis
+  #   restart: unless-stopped
+  #   networks:
+  #     - rap_network
   
   simulator:
     build: 
@@ -76,11 +76,59 @@ services:
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=redis
       - COMPOSE_NAME=myTestApp
-      - NODES=turtlebot_simulator,dashboard,main-app
+      - NODES=turtlebot_simulator,dashboard,Analysis,Plan,Execute,Monitor
     networks:
       - rap_network
 
     restart: unless-stopped
+
+  monitor:
+    build: ./Nodes/Monitor
+    container_name: Monitor
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
+    restart: unless-stopped
+    networks:
+      - rap_network
+  
+  analysis:
+    build: ./Nodes/Analysis
+    container_name: Analysis
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
+    restart: unless-stopped
+    networks:
+      - rap_network
+  plan:
+    build: ./Nodes/Plan
+    container_name: Plan
+    depends_on:
+      redis:
+        condition: service_healthy      
+    environment:
+      - REDIS_HOST=redis
+    restart: unless-stopped
+    networks:
+      - rap_network 
+
+  execute:
+    build: ./Nodes/Execute  
+    container_name: Execute
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis  
+    restart: unless-stopped
+    networks:
+      - rap_network
+      
 
 networks:
   rap_network:

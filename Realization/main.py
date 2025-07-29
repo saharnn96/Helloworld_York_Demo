@@ -49,7 +49,7 @@ try:
     while True:
         time.sleep(1)  # Sleep to avoid busy-waiting
 except KeyboardInterrupt:
-    monitor.shutdown()
+    # monitor.shutdown()
     analyse.shutdown()
     plan.shutdown()
     # legitimate.shutdown()

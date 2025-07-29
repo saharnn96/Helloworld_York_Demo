@@ -115,7 +115,7 @@ class PlanisLegit(object):
 class HandlingAnomalyData(object):
     
     def __init__(self):
-        self.name= "HandlingAnomaly"
+        self.name= "HandlingAnomalyData"
         self.type = "knowledge"
         self.uid= None
         self.timestamp= None

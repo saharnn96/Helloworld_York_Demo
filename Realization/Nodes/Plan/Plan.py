@@ -7,9 +7,10 @@
 # * permission of Bert Van Acker
 # **********************************************************************************
 from rpio.clientLibraries.rpclpy.node import Node
-from .messages import *
+from messages import *
 import time
 from rpio.clientLibraries.rpclpy.utils import timeit_callback
+import yaml
 #<!-- cc_include START--!>
 from fractions import Fraction
 from lidarocclusion.masks import BoolLidarMask
@@ -157,8 +158,12 @@ class Plan(Node):
         # self.register_event_callback(event_key='anomaly', callback=self.planner)        # LINK <inport> anomaly
 
 def main(args=None):
-
-    node = Plan(config='config.yaml')
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+    except:
+        raise Exception("Config file not found")
+    node = Plan(config=config)
     node.register_callbacks()
     node.start()
 

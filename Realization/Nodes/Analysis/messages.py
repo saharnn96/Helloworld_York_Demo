@@ -1,10 +1,17 @@
 from enum import Enum
 
+class Type(Enum):
+    Event = 1
+    Knowledge = 2
+    Message = 3
+
+
 class LaserScan(object):
     def __init__(self):
 
         self.name= "LaserScan"
-        self.type = "Message"
+        self.type = Type.Knowledge
+
         self.uid= None
         self.timestamp= None
         self.topic= "/Scan"
@@ -31,7 +38,6 @@ class LaserScan(object):
     def angle_increment(self, cmp):
         """The angle_increment (write)."""
         self._angle_increment = cmp
-
 
 class Direction(object):
     def __init__(self):
@@ -115,7 +121,7 @@ class PlanisLegit(object):
 class HandlingAnomalyData(object):
     
     def __init__(self):
-        self.name= "HandlingAnomaly"
+        self.name= "HandlingAnomalyData"
         self.type = "knowledge"
         self.uid= None
         self.timestamp= None

@@ -9,9 +9,10 @@
 import json
 
 from rpio.clientLibraries.rpclpy.node import Node
-from .messages import *
+from messages import *
 import time
 from rpio.clientLibraries.rpclpy.utils import timeit_callback
+import yaml
 #<!-- cc_include START--!>
 # user includes here
 #<!-- cc_include END--!>
@@ -56,8 +57,12 @@ class Execute(Node):
         self.register_event_callback(event_key='isLegit', callback=self.executer)        # LINK <inport> isLegit
 
 def main(args=None):
-
-    node = Execute(config='config.yaml')
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+    except:
+        raise Exception("Config file not found")
+    node = Execute(config)
     node.register_callbacks()
     node.start()
 

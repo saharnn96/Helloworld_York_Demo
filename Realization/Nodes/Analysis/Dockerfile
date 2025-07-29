@@ -1,16 +1,21 @@
-FROM python:3.10
-ENV PYTHONUNBUFFERED 1
+FROM python:3.10-slim
 
-ADD . c:/src/app
-WORKDIR c:/src/app
-ENV PYTHONPATH c:/src/app:$PYTHONPATH
+WORKDIR /app
 
-COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Copy requirements first for better caching
+COPY requirements.txt .
 
-COPY config.yaml ./
-COPY messages.py ./
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the entire application
 COPY . .
 
-CMD ["python3", "Analysis.py"]
+# Install the lidarocclusion package
+RUN pip install -e ./lidarocclusion
 
+# Expose any ports if needed (adjust based on your application needs)
+# EXPOSE 8080
+
+# Run the main application
+CMD ["python", "Analysis.py"]
