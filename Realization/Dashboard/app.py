@@ -34,7 +34,12 @@ class RedisLogHandler(logging.Handler):
             # Don't let logging errors crash the app
             pass
 
-r = redis.Redis(host=os.getenv('REDIS_HOST', 'localhost'), port=os.getenv('REDIS_PORT', 6379), decode_responses=True)
+r = redis.Redis(
+    host=os.getenv('REDIS_HOST', 'localhost'),
+    port=int(os.getenv('REDIS_PORT', 6379)),
+    db=int(os.getenv('REDIS_DB', 0)),
+    decode_responses=True
+)
 
 # Add Redis handler to logger
 redis_handler = RedisLogHandler(r, "dashboard:logs")
@@ -57,81 +62,92 @@ app.layout = html.Div([
                 style={
                     'textAlign': 'center', 
                     'color': '#2c3e50',
-                    'marginBottom': '10px',
+                    'marginBottom': '5px',
                     'fontWeight': '300',
-                    'fontSize': '2.5rem'
+                    'fontSize': '1.8rem'
                 }),
         html.P("Real-time monitoring and control of distributed components", 
                style={
                    'textAlign': 'center', 
                    'color': '#7f8c8d',
-                   'marginBottom': '30px',
-                   'fontSize': '1.1rem'
+                   'marginBottom': '10px',
+                   'fontSize': '0.9rem'
                })
     ], style={
         'background': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'padding': '40px 20px',
-        'marginBottom': '30px',
-        'borderRadius': '0 0 15px 15px',
-        'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)'
+        'padding': '20px 20px',
+        'marginBottom': '15px',
+        'borderRadius': '0 0 10px 10px',
+        'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.1)'
     }),
 
-    # Gantt Chart Section
+    # Main Content Grid
     html.Div([
-        html.H3("Components Activation Timeline", 
-                style={
-                    'color': '#2c3e50',
-                    'marginBottom': '20px',
-                    'fontWeight': '400'
-                }),
-        dcc.Graph(id="gantt-chart", style={'height': '400px'})
-    ], style={
-        'backgroundColor': '#ffffff',
-        'padding': '25px',
-        'marginBottom': '30px',
-        'borderRadius': '10px',
-        'boxShadow': '0 2px 10px rgba(0, 0, 0, 0.08)',
-        'border': '1px solid #e9ecef'
-    }),
-
-    # Device Cards Section
-    html.Div([
+        # Left Column: Gantt Chart
         html.Div([
-            html.H3("Device Status", 
-                    style={
-                        'color': '#2c3e50',
-                        'marginBottom': '20px',
-                        'fontWeight': '400',
-                        'display': 'inline-block'
-                    }),
-            html.Button('+ Add Device', 
-                       id='add-processor-btn', 
-                       style={
-                           'backgroundColor': '#3498db',
-                           'color': 'white',
-                           'border': 'none',
-                           'padding': '8px 16px',
-                           'borderRadius': '5px',
-                           'cursor': 'pointer',
-                           'fontSize': '14px',
-                           'float': 'right',
-                           'transition': 'all 0.3s ease'
-                       })
-        ], style={'marginBottom': '20px'}),
-        html.Div(id='processor-cards', 
-                style={
-                    'display': 'grid', 
-                    'gridTemplateColumns': 'repeat(auto-fill, minmax(280px, 1fr))', 
-                    'gap': '20px'
-                })
-    ], style={
-        'backgroundColor': '#ffffff',
-        'padding': '25px',
-        'marginBottom': '30px',
-        'borderRadius': '10px',
-        'boxShadow': '0 2px 10px rgba(0, 0, 0, 0.08)',
-        'border': '1px solid #e9ecef'
-    }),
+            html.Div([
+                html.H3("Components Timeline", 
+                        style={
+                            'color': '#2c3e50',
+                            'marginBottom': '10px',
+                            'fontWeight': '400',
+                            'fontSize': '1.1rem'
+                        }),
+                dcc.Graph(id="gantt-chart", style={'height': '320px'})
+            ], style={
+                'backgroundColor': '#ffffff',
+                'padding': '15px',
+                'borderRadius': '8px',
+                'boxShadow': '0 2px 8px rgba(0, 0, 0, 0.08)',
+                'border': '1px solid #e9ecef',
+                'height': '370px'
+            })
+        ], style={'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top'}),
+        
+        # Right Column: Device Cards
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.H3("Device Status", 
+                            style={
+                                'color': '#2c3e50',
+                                'marginBottom': '10px',
+                                'fontWeight': '400',
+                                'display': 'inline-block',
+                                'fontSize': '1.1rem'
+                            }),
+                    html.Button('+ Add Device', 
+                               id='add-processor-btn', 
+                               style={
+                                   'backgroundColor': '#3498db',
+                                   'color': 'white',
+                                   'border': 'none',
+                                   'padding': '6px 12px',
+                                   'borderRadius': '4px',
+                                   'cursor': 'pointer',
+                                   'fontSize': '12px',
+                                   'float': 'right',
+                                   'transition': 'all 0.3s ease'
+                               })
+                ], style={'marginBottom': '10px'}),
+                html.Div(id='processor-cards', 
+                        style={
+                            'display': 'grid', 
+                            'gridTemplateColumns': '1fr', 
+                            'gap': '8px',
+                            'maxHeight': '320px',
+                            'overflowY': 'auto'
+                        })
+            ], style={
+                'backgroundColor': '#ffffff',
+                'padding': '15px',
+                'borderRadius': '8px',
+                'boxShadow': '0 2px 8px rgba(0, 0, 0, 0.08)',
+                'border': '1px solid #e9ecef',
+                'height': '370px'
+            })
+        ], style={'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top', 'marginLeft': '4%'})
+    ], style={'marginBottom': '15px'}),
 
     # Logs Section
     html.Div([
@@ -139,9 +155,10 @@ app.layout = html.Div([
             html.H3("System Logs", 
                     style={
                         'color': '#2c3e50',
-                        'marginBottom': '20px',
+                        'marginBottom': '10px',
                         'fontWeight': '400',
-                        'display': 'inline-block'
+                        'display': 'inline-block',
+                        'fontSize': '1.1rem'
                     }),
             html.Button('🔄 Refresh Log Sources', 
                        id='refresh-log-sources-btn',
@@ -149,66 +166,69 @@ app.layout = html.Div([
                            'backgroundColor': '#17a2b8',
                            'color': 'white',
                            'border': 'none',
-                           'padding': '8px 16px',
-                           'borderRadius': '5px',
+                           'padding': '6px 12px',
+                           'borderRadius': '4px',
                            'cursor': 'pointer',
-                           'fontSize': '14px',
+                           'fontSize': '12px',
                            'float': 'right',
                            'transition': 'all 0.3s ease'
                        })
-        ], style={'marginBottom': '15px'}),
+        ], style={'marginBottom': '8px'}),
         
         html.Div([
             html.Label("Select Log Sources:", style={
                 'fontWeight': '600',
                 'color': '#2c3e50',
-                'marginBottom': '10px',
-                'display': 'block'
+                'marginBottom': '5px',
+                'display': 'block',
+                'fontSize': '12px'
             }),
             dcc.Checklist(
                 id='log-sources-checklist',
                 options=[],
                 value=[],
                 style={
-                    'marginBottom': '15px'
+                    'marginBottom': '8px'
                 },
                 inputStyle={
-                    'marginRight': '8px'
+                    'marginRight': '6px'
                 },
                 labelStyle={
                     'display': 'inline-block',
-                    'marginRight': '15px',
-                    'marginBottom': '5px',
+                    'marginRight': '12px',
+                    'marginBottom': '3px',
                     'color': '#34495e',
-                    'fontSize': '14px'
+                    'fontSize': '12px'
                 }
             )
         ], style={
             'backgroundColor': '#f8f9fa',
-            'padding': '15px',
-            'borderRadius': '5px',
+            'padding': '8px',
+            'borderRadius': '4px',
             'border': '1px solid #dee2e6',
-            'marginBottom': '15px'
+            'marginBottom': '8px'
         }),
         
         html.Pre(id='live-log', 
                 style={
-                    'height': '300px', 
+                    'height': '200px', 
                     'overflowY': 'auto', 
                     'backgroundColor': '#f8f9fa',
                     'border': '1px solid #dee2e6',
-                    'borderRadius': '5px',
-                    'padding': '15px',
+                    'borderRadius': '4px',
+                    'padding': '8px',
                     'fontFamily': 'Monaco, Consolas, "Courier New", monospace',
-                    'fontSize': '12px',
-                    'lineHeight': '1.4'
+                    'fontSize': '11px',
+                    'lineHeight': '1.3',
+                    'margin': '0'
                 })
     ], style={
         'backgroundColor': '#ffffff',
-        'padding': '25px',
-        'borderRadius': '10px',
-        'boxShadow': '0 2px 10px rgba(0, 0, 0, 0.08)',
-        'border': '1px solid #e9ecef'
+        'padding': '15px',
+        'borderRadius': '8px',
+        'boxShadow': '0 2px 8px rgba(0, 0, 0, 0.08)',
+        'border': '1px solid #e9ecef',
+        'height': '300px'
     }),
 
     # Intervals
@@ -219,9 +239,11 @@ app.layout = html.Div([
 ], style={
     'backgroundColor': '#f5f6fa',
     'minHeight': '100vh',
-    'padding': '0',
+    'maxHeight': '100vh',
+    'padding': '10px',
     'margin': '0',
-    'fontFamily': '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif'
+    'fontFamily': '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+    'overflow': 'hidden'
 })
 
 @app.callback(
@@ -231,53 +253,219 @@ app.layout = html.Div([
 def update_gantt(_):
     fig = go.Figure()
     phase_colors = {
-        "Monitor": "#1f77b4",
-        "Analysis": "#2ca02c",
-        "Plan": "#ff7f0e",
-        "Execute": "#d62728",
-        "Legitimate": "#9467bd",
-        "Trustworthiness": "#8c564b"
+        "Monitor": "#3498db",
+        "Analyze": "#2ecc71", 
+        "Plan": "#f39c12",
+        "Execute": "#e74c3c",
+        "Knowledge": "#9b59b6"
     }
+    
     device_names = r.lrange('devices:list', 0, -1)
     now = time.time()
+    time_window = 15  # Show last 60 seconds to keep history
+    
     for device in device_names:
         nodes = r.lrange(f"devices:{device}:nodes", 0, -1)
         for node in nodes:
-            execution_time = r.get(f"{node}:execution_time")
-            start_execution = r.get(f"{node}:start_execution")
-            try:
-                if execution_time and start_execution:
+            # Get execution history for this component
+            history_key = f"devices:{device}:{node}:execution_history"
+            execution_history = r.lrange(history_key, 0, -1)  # Get all history entries
+            
+            # Also check for current execution data (single execution)
+            execution_time_key = f"{node}:execution_time"
+            start_execution_key = f"{node}:start_execution"
+            device_execution_time_key = f"devices:{device}:{node}:execution_time"
+            device_start_execution_key = f"devices:{device}:{node}:start_execution"
+            
+            execution_time = r.get(execution_time_key) or r.get(device_execution_time_key)
+            start_execution = r.get(start_execution_key) or r.get(device_start_execution_key)
+            
+            # Process execution history if available
+            if execution_history:
+                for history_entry in execution_history:
+                    try:
+                        # Parse history entry (format: "start_time,duration,status")
+                        parts = history_entry.split(',')
+                        if len(parts) >= 2:
+                            start_exec = float(parts[0])
+                            exec_time = float(parts[1])
+                            status = parts[2] if len(parts) > 2 else "completed"
+                            
+                            # Calculate relative time positions
+                            start_relative = now - start_exec
+                            
+                            # Show all executions within time window
+                            if start_relative <= time_window and start_relative >= 0:
+                                bar_start = -start_relative
+                                bar_width = exec_time
+                                
+                                # Adjust bar width if it extends beyond current time
+                                if bar_start + bar_width > 0:
+                                    bar_width = -bar_start
+                                
+                                if bar_width > 0:
+                                    # Color based on node type and status
+                                    node_color = phase_colors.get(node, "#95a5a6")
+                                    if status == "active" or status == "running":
+                                        node_color = phase_colors.get(node, "#27ae60")
+                                    elif status == "building":
+                                        node_color = "#f1c40f"
+                                    elif status == "error":
+                                        node_color = "#e67e22"
+                                    elif status == "completed":
+                                        # Use slightly faded color for completed executions
+                                        base_color = phase_colors.get(node, "#95a5a6")
+                                        node_color = base_color + "AA"  # Add transparency
+                                    
+                                    fig.add_trace(go.Bar(
+                                        name=f"{device}:{node}",
+                                        x=[bar_width],
+                                        y=[f"{device}:{node}"],
+                                        base=bar_start,
+                                        orientation="h",
+                                        marker=dict(
+                                            color=node_color,
+                                            line=dict(color='rgba(0,0,0,0.3)', width=1)
+                                        ),
+                                        hovertemplate=(
+                                            f"<b>{device}:{node}</b><br>"
+                                            f"Started: {start_relative:.1f}s ago<br>"
+                                            f"Duration: {exec_time:.1f}s<br>"
+                                            f"Status: {status}<br>"
+                                            "<extra></extra>"
+                                        ),
+                                        showlegend=False
+                                    ))
+                    except (ValueError, IndexError) as e:
+                        logger.warning(f"Error parsing history entry {history_entry}: {e}")
+                        continue
+            
+            # ALWAYS check for current/new execution data (even if history exists)
+            if execution_time and start_execution:
+                try:
                     start_exec = float(start_execution)
-                    if now - start_exec <= 10:
-                        exec_time = float(execution_time)
-                        fig.add_trace(go.Bar(
-                            name=f"{node}",
-                            x=[exec_time],
-                            y=[f"{node}"],
-                            base=start_execution,
-                            orientation="h",
-                            marker=dict(color=phase_colors.get(node, "#7f7f7f"))
-                        ))
-            except ValueError:
-                continue
-
+                    exec_time = float(execution_time)
+                    
+                    # Check if this execution is already in history to avoid duplicates
+                    is_duplicate = False
+                    if execution_history:
+                        for history_entry in execution_history:
+                            try:
+                                parts = history_entry.split(',')
+                                if len(parts) >= 2:
+                                    hist_start = float(parts[0])
+                                    hist_duration = float(parts[1])
+                                    # Consider it duplicate if start time and duration match closely
+                                    if abs(hist_start - start_exec) < 0.1 and abs(hist_duration - exec_time) < 0.1:
+                                        is_duplicate = True
+                                        break
+                            except (ValueError, IndexError):
+                                continue
+                    
+                    # Only process if not a duplicate
+                    if not is_duplicate:
+                        # Calculate relative time positions
+                        start_relative = now - start_exec
+                        
+                        # Show if within time window
+                        if start_relative <= time_window and start_relative >= 0:
+                            bar_start = -start_relative
+                            bar_width = exec_time
+                            
+                            # Adjust bar width if it extends beyond current time
+                            if bar_start + bar_width > 0:
+                                bar_width = -bar_start
+                            
+                            if bar_width > 0:
+                                # Get component status for color coding
+                                status = r.get(f"devices:{device}:{node}:status")
+                                node_color = phase_colors.get(node, "#95a5a6")
+                                
+                                # Modify color based on status
+                                if status == "active" or status == "running":
+                                    node_color = phase_colors.get(node, "#27ae60")
+                                elif status == "building":
+                                    node_color = "#f1c40f"
+                                elif status == "error":
+                                    node_color = "#e67e22"
+                                
+                                fig.add_trace(go.Bar(
+                                    name=f"{device}:{node}",
+                                    x=[bar_width],
+                                    y=[f"{device}:{node}"],
+                                    base=bar_start,
+                                    orientation="h",
+                                    marker=dict(
+                                        color=node_color,
+                                        line=dict(color='rgba(0,0,0,0.3)', width=1)
+                                    ),
+                                    hovertemplate=(
+                                        f"<b>{device}:{node}</b><br>"
+                                        f"Started: {start_relative:.1f}s ago<br>"
+                                        f"Duration: {exec_time:.1f}s<br>"
+                                        f"Status: {status or 'current'}<br>"
+                                        "<extra></extra>"
+                                    ),
+                                    showlegend=False
+                                ))
+                                
+                                logger.debug(f"Added NEW bar for {device}:{node} - start: {bar_start:.2f}, width: {bar_width:.2f}")
+                            
+                            # Store this NEW execution in history for future reference
+                            history_entry = f"{start_exec},{exec_time},{status or 'active'}"
+                            r.lpush(f"devices:{device}:{node}:execution_history", history_entry)
+                            # Keep only last 50 history entries per component
+                            r.ltrim(f"devices:{device}:{node}:execution_history", 0, 49)
+                            logger.debug(f"Stored new execution in history: {history_entry}")
+                                
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Error processing {device}:{node} execution data: {e}")
+                    continue
+    
+    # Update layout with proper time axis
     fig.update_layout(
         title={
-            'text': "MAPE-K Phases Timeline (Last 10 Seconds)",
+            'text': f"Component Execution History (Last {time_window} Seconds)",
             'x': 0.5,
             'xanchor': 'center',
-            'font': {'size': 16, 'color': '#2c3e50'}
+            'font': {'size': 14, 'color': '#2c3e50'}
         },
-        xaxis_title="Time (seconds)",
-        yaxis_title="Components",
+        xaxis={
+            'title': "Time (seconds ago ← | → now)",
+            'range': [-time_window, 0],
+            'tickmode': 'linear',
+            'dtick': 10,
+            'showgrid': True,
+            'gridcolor': 'rgba(0,0,0,0.1)',
+            'zeroline': True,
+            'zerolinecolor': 'rgba(231, 76, 60, 0.8)',
+            'zerolinewidth': 2
+        },
+        yaxis={
+            'title': "Components",
+            'showgrid': True,
+            'gridcolor': 'rgba(0,0,0,0.1)',
+            'categoryorder': 'category ascending'  # Keep consistent ordering
+        },
         barmode="overlay",
         template="plotly_white",
         showlegend=False,
         plot_bgcolor="rgba(248, 249, 250, 1)",
         paper_bgcolor="rgba(255, 255, 255, 1)",
         font={'family': '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif'},
-        margin={'l': 80, 'r': 20, 't': 60, 'b': 60}
+        margin={'l': 120, 'r': 20, 't': 60, 'b': 60},
+        height=300
     )
+    
+    # Add vertical line at current time (x=0)
+    fig.add_vline(
+        x=0, 
+        line_dash="dash", 
+        line_color="rgba(231, 76, 60, 0.8)",
+        annotation_text="Now",
+        annotation_position="top"
+    )
+    
     return fig
 
 @app.callback(
@@ -693,6 +881,7 @@ def update_log(_, selected_sources):
 if __name__ == '__main__':
     # Get configuration from environment variables
     dash_host = os.getenv('DASH_HOST', '0.0.0.0')
-    dash_port = int(os.getenv('DASH_PORT', '8051'))
+    dash_port = int(os.getenv('DASH_PORT', '8050'))
     logger.info("Starting Dash server in debug mode")
     app.run(host=dash_host, port=dash_port, debug=True)
+
