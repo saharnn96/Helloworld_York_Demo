@@ -252,13 +252,6 @@ docker-compose down -v --remove-orphans
 docker-compose up --build
 ```
 
-## 📝 License
-
-This project is part of the roboarch R&D project.
-Copyright (C) 2024-present Bert Van Acker (B.MKR) <bert.vanacker@uantwerpen.be>
-
-RAP R&D concepts can not be copied and/or distributed without the express permission of Bert Van Acker.
-
 ## 🤝 Contributing
 
 This is a research project. For questions or collaboration opportunities, please contact the project maintainer.
