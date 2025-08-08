@@ -470,6 +470,7 @@ def initialize_client():
             "host": redis_host, 
             "port": redis_port
         })
+        # client = CommunicationManager({"protocol":"mqtt", "broker": "localhost", "port": 1883})
         client.subscribe(SPIN_CONFIG_TOPIC, callback=on_message)
         client.start()
         sim.client = client
