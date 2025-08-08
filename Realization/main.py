@@ -1,5 +1,5 @@
 import lidarocclusion
-from Nodes.Legitimate.Legitimate import Legitimate
+# from Nodes.Legitimate.Legitimate import Legitimate
 from Nodes.Monitor.Monitor import Monitor
 from Nodes.Analysis.Analysis import Analysis
 from Nodes.Plan.Plan import Plan
@@ -18,7 +18,7 @@ monitor = Monitor(config['Monitor_Config'])
 analyse = Analysis(config['Analysis_Config'])
 plan = Plan(config['Plan_Config'])
 execute = Execute(config['Execute_Config'])
-legitimate = Legitimate(config['Legitimate_Config'])
+# legitimate = Legitimate(config['Legitimate_Config'])
 trust_c = Trustworthiness(config['Trustworthiness_Config'])
 
 # analyse = Analysis("Nodes/Analysis/config.yaml")
@@ -30,7 +30,7 @@ trust_c = Trustworthiness(config['Trustworthiness_Config'])
 monitor.register_callbacks()
 analyse.register_callbacks()
 plan.register_callbacks()
-legitimate.register_callbacks()
+# legitimate.register_callbacks()
 execute.register_callbacks()
 trust_c.register_callbacks()
 
@@ -39,7 +39,7 @@ trust_c.register_callbacks()
 monitor.start()
 analyse.start()
 plan.start()
-legitimate.start()
+# legitimate.start()
 execute.start()
 trust_c.start()
 
@@ -52,7 +52,7 @@ except KeyboardInterrupt:
     monitor.shutdown()
     analyse.shutdown()
     plan.shutdown()
-    legitimate.shutdown()
+    # legitimate.shutdown()
     execute.shutdown()
     trust_c.shutdown()
     print("\nKeyboard interruption detected. Exiting...")

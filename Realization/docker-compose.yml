@@ -14,17 +14,39 @@ services:
       retries: 5
     networks:
       - rap_network
-  # main-app:
-  #   build: .
-  #   container_name: main-app
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   environment:
-  #     - REDIS_HOST=redis
-  #   restart: unless-stopped
-  #   networks:
-  #     - rap_network
+      # EMQX MQTT Broker
+  emqx:
+      image: emqx/emqx:latest
+      container_name: emqx
+      restart: always
+      ports:
+        - "1883:1883"  # MQTT
+        - "8083:8083"  # Web MQTT
+        - "18083:18083"  # Dashboard (changed from 8080)
+      environment:
+        - EMQX_NAME=emqx
+        - EMQX_HOST=emqx
+      networks:
+        - rap_network
+      healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:18083 || exit 1"]
+        interval: 5s
+        timeout: 5s
+        retries: 30
+        start_period: 10s
+  main-app:
+    build: .
+    container_name: main-app
+    depends_on:
+      redis:
+        condition: service_healthy
+      emqx:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
+    restart: unless-stopped
+    networks:
+      - rap_network
   
   simulator:
     build: 
@@ -38,8 +60,12 @@ services:
       - DASH_PORT=8051
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - MQTT_BROKER=emqx
+      - MQTT_PORT=1883
     depends_on:
       redis:
+        condition: service_healthy
+      emqx:
         condition: service_healthy
     networks:
       - rap_network
@@ -82,52 +108,52 @@ services:
 
     restart: unless-stopped
 
-  monitor:
-    build: ./Nodes/Monitor
-    container_name: Monitor
-    depends_on:
-      redis:
-        condition: service_healthy
-    environment:
-      - REDIS_HOST=redis
-    restart: unless-stopped
-    networks:
-      - rap_network
+  # monitor:
+  #   build: ./Nodes/Monitor
+  #   container_name: Monitor
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     - REDIS_HOST=redis
+  #   restart: unless-stopped
+  #   networks:
+  #     - rap_network
   
-  analysis:
-    build: ./Nodes/Analysis
-    container_name: Analysis
-    depends_on:
-      redis:
-        condition: service_healthy
-    environment:
-      - REDIS_HOST=redis
-    restart: unless-stopped
-    networks:
-      - rap_network
-  plan:
-    build: ./Nodes/Plan
-    container_name: Plan
-    depends_on:
-      redis:
-        condition: service_healthy      
-    environment:
-      - REDIS_HOST=redis
-    restart: unless-stopped
-    networks:
-      - rap_network 
+  # analysis:
+  #   build: ./Nodes/Analysis
+  #   container_name: Analysis
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     - REDIS_HOST=redis
+  #   restart: unless-stopped
+  #   networks:
+  #     - rap_network
+  # plan:
+  #   build: ./Nodes/Plan
+  #   container_name: Plan
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy      
+  #   environment:
+  #     - REDIS_HOST=redis
+  #   restart: unless-stopped
+  #   networks:
+  #     - rap_network 
 
-  execute:
-    build: ./Nodes/Execute  
-    container_name: Execute
-    depends_on:
-      redis:
-        condition: service_healthy
-    environment:
-      - REDIS_HOST=redis  
-    restart: unless-stopped
-    networks:
-      - rap_network
+  # execute:
+  #   build: ./Nodes/Execute  
+  #   container_name: Execute
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     - REDIS_HOST=redis  
+  #   restart: unless-stopped
+  #   networks:
+  #     - rap_network
       
 
 networks:

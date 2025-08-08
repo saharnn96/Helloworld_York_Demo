@@ -7,7 +7,7 @@ Monitor_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: redis
+      broker: emqx
       port: 1883
       topic: logs
     redis:
@@ -41,13 +41,13 @@ Monitor_Config:
           topic: /new_data
           QoS: 10
   Event_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Message_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Knowledge_Config:
     knowledge_type: redis
     host: redis
@@ -63,7 +63,7 @@ Analysis_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: redis
+      broker: emqx
       port: 1883
       topic: logs
     redis:
@@ -97,13 +97,13 @@ Analysis_Config:
           topic: /anomaly
           QoS: 10
   Event_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Message_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Knowledge_Config:
     knowledge_type: redis
     host: redis
@@ -119,7 +119,7 @@ Plan_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: redis
+      broker: emqx
       port: 1883
       topic: logs
     redis:
@@ -165,13 +165,13 @@ Plan_Config:
           topic: /new_plan
           QoS: 10
   Event_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Message_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Knowledge_Config:
     knowledge_type: redis
     host: redis
@@ -187,7 +187,7 @@ Execute_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: redis
+      broker: emqx
       port: 1883
       topic: logs
     redis:
@@ -239,13 +239,13 @@ Execute_Config:
           topic: /spin_config
           QoS: 10
   Event_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Message_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Knowledge_Config:
     knowledge_type: redis
     host: redis
@@ -261,7 +261,7 @@ Legitimate_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: redis
+      broker: emqx
       port: 1883
       topic: logs
     redis:
@@ -289,13 +289,13 @@ Legitimate_Config:
           topic: /isLegit
           QoS: 10
   Event_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Message_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Knowledge_Config:
     knowledge_type: redis
     host: redis
@@ -311,7 +311,7 @@ Trustworthiness_Config:
     file:
       filename: MAPLE.log
     mqtt:
-      broker: redis
+      broker: emqx
       port: 1883
       topic: logs
     redis:
@@ -375,13 +375,13 @@ Trustworthiness_Config:
           topic: /stage
           QoS: 10
   Event_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Message_Manager_Config:
-    protocol: redis
-    host: redis
-    port: 6379
+    protocol: mqtt
+    host: emqx
+    port: 1883
   Knowledge_Config:
     knowledge_type: redis
     host: redis

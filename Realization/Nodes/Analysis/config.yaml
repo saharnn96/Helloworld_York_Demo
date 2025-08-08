@@ -40,13 +40,13 @@ eventOut:
         topic: /anomaly
         QoS: 10
 Event_Manager_Config:
-  protocol: redis
-  host: redis
-  port: 6379
+  protocol: mqtt
+  host: emqx
+  port: 1883
 Message_Manager_Config:
-  protocol: redis
-  host: redis
-  port: 6379
+  protocol: mqtt
+  host: emqx
+  port: 1883
 Knowledge_Config:
   knowledge_type: redis
   host: redis

@@ -465,12 +465,14 @@ def initialize_client():
         # Get Redis configuration from environment variables
         redis_host = os.getenv('REDIS_HOST', 'localhost')
         redis_port = int(os.getenv('REDIS_PORT', '6379'))
-        client = CommunicationManager({
-            "protocol": "redis", 
-            "host": redis_host, 
-            "port": redis_port
-        })
-        # client = CommunicationManager({"protocol":"mqtt", "broker": "localhost", "port": 1883})
+        # client = CommunicationManager({
+        #     "protocol": "redis", 
+        #     "host": redis_host, 
+        #     "port": redis_port
+        # })
+        mqtt_broker = os.getenv('MQTT_BROKER', 'localhost')
+        mqtt_port = int(os.getenv('MQTT_PORT', '1883'))
+        client = CommunicationManager({"protocol": "mqtt", "broker": mqtt_broker, "port": mqtt_port})
         client.subscribe(SPIN_CONFIG_TOPIC, callback=on_message)
         client.start()
         sim.client = client
@@ -483,7 +485,7 @@ def initialize_client():
 if __name__ == "__main__":
     # Get configuration from environment variables
     dash_host = os.getenv('DASH_HOST', '0.0.0.0')
-    dash_port = int(os.getenv('DASH_PORT', '8050'))
+    dash_port = int(os.getenv('DASH_PORT', '8051'))
     dash_debug = os.getenv('DASH_DEBUG', 'False').lower() == 'true'
     # Initialize MQTT client
     initialize_client()
