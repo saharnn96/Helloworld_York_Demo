@@ -42,11 +42,11 @@ Monitor_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Message_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Knowledge_Config:
     knowledge_type: redis
@@ -98,11 +98,11 @@ Analysis_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Message_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Knowledge_Config:
     knowledge_type: redis
@@ -166,11 +166,11 @@ Plan_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Message_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Knowledge_Config:
     knowledge_type: redis
@@ -240,11 +240,11 @@ Execute_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Message_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Knowledge_Config:
     knowledge_type: redis
@@ -290,11 +290,11 @@ Legitimate_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Message_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Knowledge_Config:
     knowledge_type: redis
@@ -376,11 +376,11 @@ Trustworthiness_Config:
           QoS: 10
   Event_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Message_Manager_Config:
     protocol: mqtt
-    host: emqx
+    broker: emqx
     port: 1883
   Knowledge_Config:
     knowledge_type: redis

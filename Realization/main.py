@@ -9,7 +9,7 @@ import yaml
 
 from Nodes.Trustworthiness.Trustworthiness import Trustworthiness
 try:
-    with open('config_mqtt.yaml', 'r') as file:
+    with open('config.yaml', 'r') as file:
        config = yaml.safe_load(file)
 except:
     raise Exception("Config file not found")

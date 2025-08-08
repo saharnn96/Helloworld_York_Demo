@@ -1,0 +1,57 @@
+services:
+  emqx:
+    image: emqx:latest
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+      - "8084:8084"
+      - "8883:8883"
+      - "18083:18083"
+    environment:
+      EMQX_NAME: emqx
+      EMQX_HOST: 0.0.0.0
+    volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-etc:/opt/emqx/etc
+      - emqx-log:/opt/emqx/log
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  app:
+    image: trustworthiness-checker:dev
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+      args:
+        - UID=${UID:-1000}
+        - GID=${UID:-1000}
+        - USERNAME=${USERNAME:-devuser}
+    depends_on:
+      - emqx
+      - redis
+    user: ${USERNAME:-devuser}
+    working_dir: /ws
+    environment:
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - DISPLAY=${DISPLAY}
+      - PATH=/home/${USERNAME:-devuser}/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      - ..:/ws
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/${USERNAME:-devuser}/.Xauthority
+    command: /bin/bash -c "source ~/.bashrc && cd /ws && cargo run -- examples/maple_simple_single_topic.lola --input-mqtt-topics stage --output-mqtt-topics m a p l e maple --mqtt-host emqx"
+    restart: unless-stopped
+
+volumes:
+  emqx-data:
+  emqx-etc:
+  emqx-log:
+  redis-data:
