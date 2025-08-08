@@ -53,11 +53,11 @@ eventOut:
         QoS: 10
 Event_Manager_Config:
   protocol: mqtt
-  host: emqx
+  broker: emqx
   port: 1883
 Message_Manager_Config:
   protocol: mqtt
-  host: emqx
+  broker: emqx
   port: 1883
 Knowledge_Config:
   knowledge_type: redis
