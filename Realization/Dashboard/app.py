@@ -6,6 +6,7 @@ import json
 import time
 import logging
 import os
+import threading
 
 # Setup logging
 logger = logging.getLogger("dashboard")
@@ -47,6 +48,92 @@ redis_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
 redis_handler.setFormatter(formatter)
 logger.addHandler(redis_handler)
+
+# --- Trustworthiness pub/sub listener state ---
+_trust_state = {
+    'value': None,          # True/False
+    'timestamp': 0.0        # last message time.time()
+}
+_trust_lock = threading.Lock()
+_TRUST_TOPIC = 'maple'
+_TRUST_DISPLAY_SECONDS = float(os.getenv('TRUST_DISPLAY_SECONDS', '5'))  # show for 3–5s
+
+
+def _parse_trust_payload(data):
+    """Accepts JSON or plain strings; returns True/False/None."""
+    try:
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode('utf-8', errors='ignore')
+    except Exception:
+        pass
+
+    try:
+        obj = json.loads(data) if isinstance(data, str) else data
+    except Exception:
+        obj = data
+
+    # Handle dict payloads like {"Str": true}
+    if isinstance(obj, dict):
+        # common keys variants
+        for key in ("Str", "str", "trust", "Trust", "value", "ok"):
+            if key in obj:
+                val = obj[key]
+                if isinstance(val, bool):
+                    return val
+                if isinstance(val, str):
+                    v = val.strip().lower()
+                    if v in ("true", "1", "yes", "ok"):
+                        return True
+                    if v in ("false", "0", "no"):
+                        return False
+                if isinstance(val, (int, float)):
+                    return bool(val)
+    # Handle simple strings 'true'/'false'
+    if isinstance(obj, str):
+        v = obj.strip().lower()
+        if v in ("true", "1", "yes", "ok"):
+            return True
+        if v in ("false", "0", "no"):
+            return False
+    # Unsupported
+    return None
+
+
+def _trust_listener():
+    pubsub = r.pubsub(ignore_subscribe_messages=True)
+    try:
+        pubsub.subscribe(_TRUST_TOPIC)
+        logger.info(f"Subscribed to trust topic '{_TRUST_TOPIC}'")
+        for msg in pubsub.listen():
+            try:
+                data = msg.get('data')
+                val = _parse_trust_payload(data)
+                if val is not None:
+                    with _trust_lock:
+                        _trust_state['value'] = bool(val)
+                        _trust_state['timestamp'] = time.time()
+                    logger.debug(f"Trust update: {val}")
+                else:
+                    logger.debug(f"Ignored trust payload: {data}")
+            except Exception as e:
+                logger.warning(f"Error processing trust message: {e}")
+    except Exception as e:
+        logger.error(f"Trust listener error: {e}")
+    finally:
+        try:
+            pubsub.close()
+        except Exception:
+            pass
+
+
+def _start_trust_thread_once():
+    # Prevent multiple listener threads in debug reloader
+    if getattr(_start_trust_thread_once, '_started', False):
+        return
+    t = threading.Thread(target=_trust_listener, name='TrustListener', daemon=True)
+    t.start()
+    _start_trust_thread_once._started = True
+    logger.info("Trust listener thread started")
 
 app = dash.Dash(__name__)
 app.title = "RoboSAPIENS Adaptive Platform Dashboard"
@@ -93,6 +180,23 @@ app.layout = html.Div([
                             'fontWeight': '400',
                             'fontSize': '1.1rem'
                         }),
+                # Trust popup (toast-like) anchored to this card
+                html.Div(
+                    id='trust-popup',
+                    style={
+                        'display': 'none',
+                        'position': 'absolute',
+                        'top': '8px',
+                        'right': '8px',
+                        'zIndex': 5,
+                        'padding': '10px 14px',
+                        'borderRadius': '8px',
+                        'boxShadow': '0 4px 10px rgba(0,0,0,0.15)',
+                        'color': 'white',
+                        'fontWeight': '600',
+                        'fontSize': '13px'
+                    }
+                ),
                 dcc.Graph(id="gantt-chart", style={'height': '320px'})
             ], style={
                 'backgroundColor': '#ffffff',
@@ -100,7 +204,8 @@ app.layout = html.Div([
                 'borderRadius': '8px',
                 'boxShadow': '0 2px 8px rgba(0, 0, 0, 0.08)',
                 'border': '1px solid #e9ecef',
-                'height': '370px'
+                'height': '370px',
+                'position': 'relative'  # anchor for absolute popup
             })
         ], style={'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top'}),
         
@@ -132,11 +237,13 @@ app.layout = html.Div([
                 ], style={'marginBottom': '10px'}),
                 html.Div(id='processor-cards', 
                         style={
-                            'display': 'grid', 
-                            'gridTemplateColumns': '1fr', 
+                            'display': 'flex', 
+                            'flexDirection': 'row',
                             'gap': '8px',
                             'maxHeight': '320px',
-                            'overflowY': 'auto'
+                            'overflowX': 'auto',
+                            'overflowY': 'hidden',
+                            'paddingBottom': '5px'
                         })
             ], style={
                 'backgroundColor': '#ffffff',
@@ -211,7 +318,7 @@ app.layout = html.Div([
         
         html.Pre(id='live-log', 
                 style={
-                    'height': '200px', 
+                    'height': '150px', 
                     'overflowY': 'auto', 
                     'backgroundColor': '#f8f9fa',
                     'border': '1px solid #dee2e6',
@@ -235,7 +342,8 @@ app.layout = html.Div([
     dcc.Interval(id='interval-gantt', interval=1000, n_intervals=0),
     dcc.Interval(id='interval-redis', interval=2000, n_intervals=0),
     dcc.Interval(id='interval-log', interval=1000, n_intervals=0),
-    dcc.Interval(id='interval-log-sources', interval=5000, n_intervals=0)  # Check for new sources every 5 seconds
+    dcc.Interval(id='interval-log-sources', interval=5000, n_intervals=0),  # Check for new sources every 5 seconds
+    dcc.Interval(id='interval-trust', interval=1000, n_intervals=0)  # drive trust popup
 ], style={
     'backgroundColor': '#f5f6fa',
     'minHeight': '100vh',
@@ -263,6 +371,9 @@ def update_gantt(_):
     device_names = r.lrange('devices:list', 0, -1)
     now = time.time()
     time_window = 15  # Show last 60 seconds to keep history
+
+    # Track y labels so we can force Trustworthiness at the top
+    y_labels = set()
     
     for device in device_names:
         nodes = r.lrange(f"devices:{device}:nodes", 0, -1)
@@ -317,10 +428,12 @@ def update_gantt(_):
                                         base_color = phase_colors.get(node, "#95a5a6")
                                         node_color = base_color + "AA"  # Add transparency
                                     
+                                    y_label = f"{device}:{node}"
+                                    y_labels.add(y_label)
                                     fig.add_trace(go.Bar(
-                                        name=f"{device}:{node}",
+                                        name=y_label,
                                         x=[bar_width],
-                                        y=[f"{device}:{node}"],
+                                        y=[y_label],
                                         base=bar_start,
                                         orientation="h",
                                         marker=dict(
@@ -389,10 +502,12 @@ def update_gantt(_):
                                 elif status == "error":
                                     node_color = "#e67e22"
                                 
+                                y_label = f"{device}:{node}"
+                                y_labels.add(y_label)
                                 fig.add_trace(go.Bar(
-                                    name=f"{device}:{node}",
+                                    name=y_label,
                                     x=[bar_width],
-                                    y=[f"{device}:{node}"],
+                                    y=[y_label],
                                     base=bar_start,
                                     orientation="h",
                                     marker=dict(
@@ -421,8 +536,8 @@ def update_gantt(_):
                 except (ValueError, TypeError) as e:
                     logger.warning(f"Error processing {device}:{node} execution data: {e}")
                     continue
-    
-    # Update layout with proper time axis
+
+    # Update layout with proper time axis (restore category ordering without trust bar)
     fig.update_layout(
         title={
             'text': f"Component Execution History (Last {time_window} Seconds)",
@@ -445,7 +560,7 @@ def update_gantt(_):
             'title': "Components",
             'showgrid': True,
             'gridcolor': 'rgba(0,0,0,0.1)',
-            'categoryorder': 'category ascending'  # Keep consistent ordering
+            'categoryorder': 'category ascending'
         },
         barmode="overlay",
         template="plotly_white",
@@ -457,15 +572,13 @@ def update_gantt(_):
         height=300
     )
     
-    # Add vertical line at current time (x=0)
     fig.add_vline(
-        x=0, 
-        line_dash="dash", 
+        x=0,
+        line_dash="dash",
         line_color="rgba(231, 76, 60, 0.8)",
         annotation_text="Now",
         annotation_position="top"
     )
-    
     return fig
 
 @app.callback(
@@ -581,9 +694,9 @@ def update_processors(_):
             ], style={
                 'backgroundColor': '#f8f9fa',
                 'border': '1px solid #e9ecef',
-                'borderRadius': '8px',
-                'padding': '12px',
-                'marginBottom': '8px',
+                'borderRadius': '6px',
+                'padding': '8px',
+                'marginBottom': '6px',
                 'transition': 'all 0.2s ease'
             }))
 
@@ -612,8 +725,8 @@ def update_processors(_):
                 'display': 'flex', 
                 'justifyContent': 'space-between', 
                 'alignItems': 'center',
-                'marginBottom': '15px',
-                'paddingBottom': '10px',
+                'marginBottom': '10px',
+                'paddingBottom': '8px',
                 'borderBottom': '2px solid #ecf0f1'
             }),
             
@@ -633,8 +746,8 @@ def update_processors(_):
                         'leftMargin': '8px',
                         'fontSize': '14px'
                     })
-                ], style={'marginBottom': '8px'}),
-            ], style={'marginBottom': '20px'}),
+                ], style={'marginBottom': '6px'}),
+            ], style={'marginBottom': '12px'}),
             
             # Components List
             html.Div([
@@ -644,7 +757,11 @@ def update_processors(_):
                     'fontSize': '14px',
                     'fontWeight': '600'
                 }),
-                html.Div(comp_list)
+                html.Div(comp_list, style={
+                    'maxHeight': '180px',
+                    'overflowY': 'auto',
+                    'paddingRight': '5px'
+                })
             ]),
             
             # # Add Component Button
@@ -667,10 +784,15 @@ def update_processors(_):
             'backgroundColor': '#ffffff',
             'border': '1px solid #e9ecef',
             'borderRadius': '12px',
-            'padding': '20px',
+            'padding': '15px',
             'boxShadow': '0 2px 8px rgba(0, 0, 0, 0.1)',
             'transition': 'transform 0.2s ease, box-shadow 0.2s ease',
-            'minHeight': '300px'
+            'height': '280px',
+            'minWidth': '280px',
+            'maxWidth': '320px',
+            'flex': '0 0 auto',
+            'display': 'flex',
+            'flexDirection': 'column'
         }))
     return cards
 
@@ -878,7 +1000,44 @@ def update_log(_, selected_sources):
         logger.error(f"Error updating logs: {e}")
         return f"Error loading logs: {str(e)}"
 
+# New: Trust popup updater
+@app.callback(
+    Output('trust-popup', 'style'),
+    Output('trust-popup', 'children'),
+    Input('interval-trust', 'n_intervals'),
+    prevent_initial_call=False
+)
+def update_trust_popup(_):
+    base_style = {
+        'position': 'absolute',
+        'top': '8px',
+        'right': '8px',
+        'zIndex': 5,
+        'padding': '10px 14px',
+        'borderRadius': '8px',
+        'boxShadow': '0 4px 10px rgba(0,0,0,0.15)',
+        'color': 'white',
+        'fontWeight': '600',
+        'fontSize': '13px'
+    }
+    now = time.time()
+    with _trust_lock:
+        trust_val = _trust_state.get('value')
+        trust_ts = _trust_state.get('timestamp', 0.0)
+    if trust_ts:
+        elapsed = now - trust_ts
+        if 0 <= elapsed <= _TRUST_DISPLAY_SECONDS:
+            color = '#2ecc71' if trust_val else '#e74c3c'
+            style = dict(base_style, **{'display': 'block', 'backgroundColor': color})
+            status_txt = '✅ Trust OK' if trust_val else '❌ Trust ALERT'
+            return style, f"{status_txt} • updated {elapsed:.1f}s ago"
+    # Hidden when stale/no data
+    return {'display': 'none'}, ""
+
 if __name__ == '__main__':
+    # Start trust listener only in the actual reloader process (avoids double threads)
+    if os.getenv('WERKZEUG_RUN_MAIN') == 'true' or not bool(os.getenv('FLASK_DEBUG')):
+        _start_trust_thread_once()
     # Get configuration from environment variables
     dash_host = os.getenv('DASH_HOST', '0.0.0.0')
     dash_port = int(os.getenv('DASH_PORT', '8050'))
