@@ -52,7 +52,6 @@ impl Localisable for LOLASpecification {
         let local_vars = locality_spec.local_vars();
         let mut exprs = self.exprs.clone();
         let mut output_vars = self.output_vars.clone();
-        let mut aux_info = self.aux_info.clone();
         let input_vars = self.input_vars.clone();
 
         let mut to_remove = vec![];
@@ -62,7 +61,6 @@ impl Localisable for LOLASpecification {
             }
         }
         output_vars.retain(|v| local_vars.contains(v));
-        aux_info.retain(|v| local_vars.contains(v));
         exprs.retain(|v, _| local_vars.contains(v));
         let expr_input_vars: HashSet<_> = exprs.values().flat_map(|e| e.inputs()).collect();
         debug!("Expr input vars: {:?}", expr_input_vars);
@@ -82,7 +80,6 @@ impl Localisable for LOLASpecification {
             output_vars,
             exprs,
             self.type_annotations.clone(),
-            aux_info,
         )
     }
 }
@@ -116,7 +113,6 @@ mod tests {
             .into_iter()
             .collect(),
             BTreeMap::new(),
-            vec![],
         );
         let restricted_vars = vec!["c".into(), "e".into()];
         let localised_spec = spec.localise(&restricted_vars);
@@ -132,7 +128,6 @@ mod tests {
                 .into_iter()
                 .collect(),
                 BTreeMap::new(),
-                vec![],
             )
         )
     }
@@ -144,7 +139,6 @@ mod tests {
             vec!["i".into()],
             vec![].into_iter().collect(),
             BTreeMap::new(),
-            vec![],
         );
         let restricted_vars = vec![];
         let localised_spec = spec.localise(&restricted_vars);
@@ -155,7 +149,6 @@ mod tests {
                 vec![],
                 vec![].into_iter().collect(),
                 BTreeMap::new(),
-                vec![],
             )
         )
     }
@@ -185,7 +178,6 @@ mod tests {
                 .into_iter()
                 .collect(),
                 BTreeMap::new(),
-                vec![],
             )
         );
 
@@ -205,7 +197,6 @@ mod tests {
                 .into_iter()
                 .collect(),
                 BTreeMap::new(),
-                vec![],
             )
         );
     }

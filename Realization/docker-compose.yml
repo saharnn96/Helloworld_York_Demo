@@ -128,7 +128,34 @@ services:
     restart: unless-stopped
     networks:
       - rap_network
-      
+  TC:
+    image: trustworthiness-checker:dev
+    container_name: trustworthiness-checker
+    build:
+      context: ./TrustworthinessChecker
+      dockerfile: docker/Dockerfile
+      target: dev
+      args:
+        - UID=${UID:-1000}
+        - GID=${UID:-1000}
+        - USERNAME=${USERNAME:-devuser}
+    depends_on:
+      # - emqx
+      - redis
+    user: ${USERNAME:-devuser}
+    working_dir: /ws
+    environment:
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - DISPLAY=${DISPLAY}
+      - PATH=/home/${USERNAME:-devuser}/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      - ./TrustworthinessChecker:/ws
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/${USERNAME:-devuser}/.Xauthority
+    command: /bin/bash -c "source ~/.bashrc && cd /ws && cargo run -- examples/maple_simple_single_topic.lola --input-redis-topics stage --output-redis-topics m a p l e maple --redis-host redis"
+    restart: unless-stopped
+    networks:
+      - rap_network
 
 networks:
   rap_network:

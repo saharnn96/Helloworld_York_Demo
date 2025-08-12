@@ -12,7 +12,6 @@ use trustworthiness_checker::core::{AbstractMonitorBuilder, Runnable};
 use trustworthiness_checker::dep_manage::interface::{DependencyKind, create_dependency_manager};
 use trustworthiness_checker::io::InputProviderBuilder;
 use trustworthiness_checker::io::builders::OutputHandlerBuilder;
-use trustworthiness_checker::lang::dynamic_lola::lalr_parser::parse_file as lalr_parse_file;
 use trustworthiness_checker::runtime::RuntimeBuilder;
 use trustworthiness_checker::runtime::builder::DistributionMode;
 use trustworthiness_checker::semantics::distributed::localisation::Localisable;
@@ -44,6 +43,7 @@ async fn main(executor: Rc<LocalExecutor<'static>>) -> anyhow::Result<()> {
 
     let mqtt_port = cli.mqtt_port;
     let redis_port = cli.redis_port;
+    let redis_host = cli.redis_host.clone();
 
     let builder = builder.executor(executor.clone());
 
@@ -68,11 +68,9 @@ async fn main(executor: Rc<LocalExecutor<'static>>) -> anyhow::Result<()> {
         ParserMode::Combinator => parse_file(model_parser, cli.model.as_str())
             .await
             .context("Model file could not be parsed")?,
-        ParserMode::Lalr => lalr_parse_file(cli.model.as_str())
-            .await
-            .context("Model file could not be parsed")?,
+        ParserMode::Lalr => anyhow::bail!("LALR parser not currently implemented"),
     };
-    info!(?model, output_vars=?model.output_vars, input_vars=?model.input_vars, aux_info=?model.aux_info, "Parsed model");
+    info!(?model, output_vars=?model.output_vars, input_vars=?model.input_vars, "Parsed model");
 
     // Localise the model to contain only the local variables (if needed)
     let model = if let DistributionMode::LocalMonitor(locality_mode) = &builder.distribution_mode {
@@ -90,7 +88,6 @@ async fn main(executor: Rc<LocalExecutor<'static>>) -> anyhow::Result<()> {
     ));
 
     let output_var_names = model.output_vars.clone();
-    let aux_info = model.aux_info.clone();
     let builder = builder.model(model.clone());
 
     // Create the input provider builder
@@ -99,7 +96,8 @@ async fn main(executor: Rc<LocalExecutor<'static>>) -> anyhow::Result<()> {
         .model(model)
         .lang(language)
         .mqtt_port(mqtt_port)
-        .redis_port(redis_port);
+        .redis_port(redis_port)
+        .redis_host(redis_host.clone());
     let builder = builder.input_provider_builder(input_provider_builder);
 
     // Create the output handler
@@ -108,7 +106,7 @@ async fn main(executor: Rc<LocalExecutor<'static>>) -> anyhow::Result<()> {
         .output_var_names(output_var_names)
         .mqtt_port(mqtt_port)
         .redis_port(redis_port)
-        .aux_info(aux_info);
+        .redis_host(redis_host);
 
     let builder = builder.output_handler_builder(output_handler_builder);
 

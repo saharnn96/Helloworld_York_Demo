@@ -41,6 +41,7 @@ pub struct InputProviderBuilder {
     executor: Option<Rc<LocalExecutor<'static>>>,
     redis_port: Option<u16>,
     mqtt_port: Option<u16>,
+    redis_host: Option<String>,
 }
 
 impl InputProviderBuilder {
@@ -52,6 +53,7 @@ impl InputProviderBuilder {
             executor: None,
             redis_port: None,
             mqtt_port: None,
+            redis_host: None,
         }
     }
 
@@ -97,6 +99,11 @@ impl InputProviderBuilder {
 
     pub fn redis_port(mut self, port: Option<u16>) -> Self {
         self.redis_port = port;
+        self
+    }
+
+    pub fn redis_host(mut self, host: String) -> Self {
+        self.redis_host = Some(host);
         self
     }
 
@@ -203,7 +210,7 @@ impl InputProviderBuilder {
                 };
                 let redis_input_provider = tc::io::redis::RedisInputProvider::new(
                     self.executor.unwrap().clone(),
-                    REDIS_HOSTNAME,
+                    self.redis_host.as_deref().unwrap_or(REDIS_HOSTNAME),
                     self.redis_port,
                     var_topics,
                 )

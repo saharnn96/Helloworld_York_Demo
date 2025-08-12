@@ -1,6 +1,6 @@
 use clap::{Args, Parser, ValueEnum, builder::OsStr};
 
-use crate::core::{Runtime, Semantics};
+use crate::core::{Runtime, Semantics, REDIS_HOSTNAME};
 
 /// Specification languages supported for runtime verification
 ///
@@ -233,6 +233,9 @@ pub struct Cli {
 
     #[arg(long, help = "Port number for Redis server connection")]
     pub redis_port: Option<u16>,
+
+    #[arg(long, default_value = REDIS_HOSTNAME, help = "Hostname for Redis server connection")]
+    pub redis_host: String,
 }
 
 /// ROS-specific Trustworthiness Checker configuration

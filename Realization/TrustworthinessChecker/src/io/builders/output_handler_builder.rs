@@ -15,9 +15,9 @@ pub struct OutputHandlerBuilder {
     executor: Option<Rc<LocalExecutor<'static>>>,
     output_var_names: Option<Vec<VarName>>,
     output_mode: OutputMode,
-    aux_info: Option<Vec<VarName>>,
     mqtt_port: Option<u16>,
     redis_port: Option<u16>,
+    redis_host: Option<String>,
 }
 
 impl OutputHandlerBuilder {
@@ -26,9 +26,9 @@ impl OutputHandlerBuilder {
             executor: None,
             output_var_names: None,
             output_mode,
-            aux_info: None,
             mqtt_port: None,
             redis_port: None,
+            redis_host: None,
         }
     }
 
@@ -42,11 +42,6 @@ impl OutputHandlerBuilder {
         self
     }
 
-    pub fn aux_info(mut self, aux_info: Vec<VarName>) -> Self {
-        self.aux_info = Some(aux_info);
-        self
-    }
-
     pub fn mqtt_port(mut self, mqtt_port: Option<u16>) -> Self {
         self.mqtt_port = mqtt_port;
         self
@@ -57,6 +52,11 @@ impl OutputHandlerBuilder {
         self
     }
 
+    pub fn redis_host(mut self, redis_host: String) -> Self {
+        self.redis_host = Some(redis_host);
+        self
+    }
+
     pub async fn async_build(self) -> Box<dyn OutputHandler<Val = Value>> {
         let executor = self
             .executor
@@ -64,7 +64,6 @@ impl OutputHandlerBuilder {
             .clone();
         // Should this also be expect?
         let output_var_names = self.output_var_names.unwrap_or(vec![]).clone();
-        let aux_info = self.aux_info.unwrap_or(vec![]).clone();
 
         match self.output_mode.clone() {
             OutputMode {
@@ -73,7 +72,6 @@ impl OutputHandlerBuilder {
             } => Box::new(StdoutOutputHandler::<tc::Value>::new(
                 executor,
                 output_var_names,
-                aux_info,
             )),
             OutputMode {
                 output_mqtt_topics: Some(topics),
@@ -108,7 +106,7 @@ impl OutputHandlerBuilder {
                     RedisOutputHandler::new(
                         executor.clone(),
                         output_var_names,
-                        REDIS_HOSTNAME,
+                        self.redis_host.as_deref().unwrap_or(REDIS_HOSTNAME),
                         self.redis_port,
                         topics,
                     )
@@ -130,7 +128,7 @@ impl OutputHandlerBuilder {
                     RedisOutputHandler::new(
                         executor.clone(),
                         output_var_names,
-                        REDIS_HOSTNAME,
+                        self.redis_host.as_deref().unwrap_or(REDIS_HOSTNAME),
                         self.redis_port,
                         topics,
                     )
@@ -163,7 +161,6 @@ impl OutputHandlerBuilder {
             _ => Box::new(StdoutOutputHandler::<tc::Value>::new(
                 executor,
                 output_var_names,
-                aux_info,
             )),
         }
     }

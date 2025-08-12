@@ -75,7 +75,7 @@ def _parse_trust_payload(data):
     # Handle dict payloads like {"Str": true}
     if isinstance(obj, dict):
         # common keys variants
-        for key in ("Str", "str", "trust", "Trust", "value", "ok"):
+        for key in ("Str", "str", "trust", "Trust", "value", "ok", "Bool"):
             if key in obj:
                 val = obj[key]
                 if isinstance(val, bool):
