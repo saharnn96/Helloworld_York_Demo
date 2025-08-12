@@ -10,7 +10,7 @@ from rpio.clientLibraries.rpclpy.node import Node
 import json
 import time
 from rpio.clientLibraries.rpclpy.utils import timeit_callback
-
+import yaml
 #<!-- cc_include END--!>
 
 #<!-- cc_code START--!>
@@ -58,8 +58,12 @@ class Trustworthiness(Node):
         # self.register_event_callback(event_key='anomaly', callback=self.planner)        # LINK <inport> anomaly
 
 def main(args=None):
-
-    node = Trustworthiness(config='config.yaml')
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+    except:
+        raise Exception("Config file not found")
+    node = Trustworthiness(config=config)
     node.register_callbacks()
     node.start()
 

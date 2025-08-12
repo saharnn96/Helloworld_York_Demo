@@ -76,7 +76,7 @@ services:
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=redis
       - COMPOSE_NAME=myTestApp
-      - NODES=turtlebot_simulator,dashboard,Analysis,Plan,Execute,Monitor
+      - NODES=turtlebot_simulator,dashboard,Analysis,Plan,Execute,Monitor,Trustworthiness
     networks:
       - rap_network
 
@@ -128,6 +128,19 @@ services:
     restart: unless-stopped
     networks:
       - rap_network
+
+  trustworthiness:
+    build: ./Nodes/Trustworthiness
+    container_name: Trustworthiness
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
+    restart: unless-stopped
+    networks:
+      - rap_network
+
   TC:
     image: trustworthiness-checker:dev
     container_name: trustworthiness-checker
