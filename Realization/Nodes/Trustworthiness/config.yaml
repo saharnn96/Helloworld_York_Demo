@@ -1,7 +1,7 @@
 Logger_Config:
   log_level: DEBUG
   logger_type: redis
-  format: "%{(asctime)s} - %(name)s - %(levelname)s - %(message)s" # same format as others; adjust if needed
+  format: "%(asctime)s} - %(name)s - %(levelname)s - %(message)s" # same format as others; adjust if needed
   terminal: {}
   file:
     filename: MAPLE.log

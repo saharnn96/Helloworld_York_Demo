@@ -39,22 +39,29 @@ class Trustworthiness(Node):
         time.sleep(0.1)
         self.publish_event("stage", {'Str': 'a'})
 
+
     def t_p(self, msg):
+
         self.publish_event("stage", {'Str': 'p'})
-    def t_l(self, msg):
+        time.sleep(0.1)
         self.publish_event("stage", {'Str': 'l'})
+
+    def t_l(self, msg):
+        # self.publish_event("stage", {'Str': 'l'})
+        pass
     def t_e(self, msg):
         self.publish_event("stage", {'Str': 'e'})
-    @timeit_callback
-    def trust_check(self, msg):
-        self.logger.info(msg)
+        pass
+
+    # def trust_check(self, msg):
+    #     self.logger.info(msg)
 
     def register_callbacks(self):
         self.register_event_callback(event_key='anomaly', callback=self.t_a)     # LINK <eventTrigger> anomaly
         self.register_event_callback(event_key='new_plan', callback=self.t_p)
         self.register_event_callback(event_key='isLegit', callback=self.t_l)
         self.register_event_callback(event_key='/spin_config', callback=self.t_e)
-        self.register_event_callback(event_key='maple', callback=self.trust_check)
+        # self.register_event_callback(event_key='maple', callback=self.trust_check)
         # self.register_event_callback(event_key='anomaly', callback=self.planner)        # LINK <inport> anomaly
 
 def main(args=None):
