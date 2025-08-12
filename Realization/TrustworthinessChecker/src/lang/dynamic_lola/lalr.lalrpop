@@ -1,0 +1,170 @@
+use std::str::FromStr;
+use ecow::{EcoString, EcoVec};
+
+use crate::lang::dynamic_lola::ast::{SExpr, SStmt, SBinOp, NumericalBinOp, CompBinOp};
+use crate::core::{Value, VarName, StreamType};
+
+grammar;
+
+// Parser inspired by: https://github.com/Storyyeller/cubiml-demo/blob/master/src/grammar.lalr
+
+// Tokens ////////////////////////////////////////////////////////////
+match {
+    r"\s*" => { }, // Ignore whitespace
+    r"//[^\n\r]*[\n\r]*" => { }, // Ignore `// comments`
+    r#"\(\*[^*]*\*+(?:[^\)*][^*]*\*+)*\)"# => { },  // Ignore `(* comments *)`
+} else {
+    _
+}
+
+Ident: VarName = <s:r"[a-z_]\w*"> => VarName::from(s);
+Int: i64 = <s:r"-?[0-9]+"> => i64::from_str(s).unwrap();
+Float: f64 = <s:r"-?(?:0|[1-9][0-9]*)\.[0-9]*(?:[eE]-?[0-9]+)?"> => f64::from_str(s).unwrap();
+Bool: bool = {
+    "true" => true,
+    "false" => false
+};
+String: EcoString = <s:r#""[^\\"\n\r]*(?:\\[tn'"\\][^\\"\n\r]*)*""#> => s[1..s.len()-1].into();
+
+// Macros ////////////////////////////////////////////////////////////
+Box<T>: Box<T> = {
+    <T> => Box::new(<>),
+}
+
+// A list of elements separated by Sep
+SepList<T, Sep>: Vec<T> = {
+    <v:(<T> Sep)*> <e:T> => {
+        let mut v = v;
+        v.push(e);
+        v
+    }
+};
+
+// An optional list of elements separated by Sep
+SepListOpt<T, Sep>: Vec<T> = {
+    SepList<T, Sep>,
+    => Vec::new(),
+};
+
+// Expressions ///////////////////////////////////////////////////////
+
+IdentSExpr : SExpr = {
+    Ident => SExpr::Var(<>),
+};
+
+MultExprHelp: SBinOp  = {
+    "*" => SBinOp::NOp(NumericalBinOp::Mul),
+    "/" => SBinOp::NOp(NumericalBinOp::Div),
+};
+
+MultExpr: SExpr = {
+    <lhs: Box<MultExpr>> <op: MultExprHelp> <rhs: Box<Atom>> => {
+        SExpr::BinOp(lhs, rhs, op)
+    },
+    Atom
+};
+
+AddExprHelp: SBinOp  = {
+    "+" => SBinOp::NOp(NumericalBinOp::Add),
+    "-" => SBinOp::NOp(NumericalBinOp::Sub),
+};
+
+AddExpr: SExpr = {
+    <lhs: Box<AddExpr>> <op: AddExprHelp> <rhs: Box<MultExpr>> => {
+        SExpr::BinOp(lhs, rhs, op)
+    },
+    MultExpr
+};
+
+CompExprHelp: SBinOp = {
+    "<=" => SBinOp::COp(CompBinOp::Le),
+    "==" => SBinOp::COp(CompBinOp::Eq),
+}
+
+CompExpr: SExpr = {
+    <lhs: Box<CompExpr>> <op: CompExprHelp> <rhs: Box<AddExpr>> => {
+        SExpr::BinOp(lhs, rhs, op)
+    },
+    AddExpr
+};
+
+SIndexHelp: Box<SExpr> = {
+    Box<Literal>,
+    Box<IdentSExpr>,
+    Box<Paren>
+};
+
+SIndex: SExpr = {
+    <expr: SIndexHelp> "[" <idx: Int> "]" => {
+        SExpr::SIndex(expr, idx.try_into().unwrap())
+    },
+};
+
+LiteralVal: Value = {
+    Int => Value::Int(<>),
+    Float => Value::Float(<>),
+    Bool => Value::Bool(<>),
+    String => Value::Str(<>),
+}
+
+Literal: SExpr = {
+    LiteralVal => SExpr::Val(<>),
+};
+
+Paren: SExpr = {
+    "(" <Expr> ")"
+};
+
+Atom: SExpr = {
+    SIndex,
+    Literal,
+    IdentSExpr,
+    Paren
+}
+
+Ifelse: SExpr = {
+    "if" <c: Expr> "then" <i: Expr> "else" <e: Expr> => SExpr::If(Box::new(c), Box::new(i), Box::new(e))
+}
+
+StreamTyp: StreamType = {
+    "Int" => StreamType::Int,
+    "Str" => StreamType::Str,
+    "Float" => StreamType::Float,
+    "Bool" => StreamType::Bool,
+    "Unit" => StreamType::Unit,
+}
+
+TypeAnno: StreamType = {
+    ": " <StreamTyp> => <>
+}
+
+pub Expr: SExpr = {
+    Ifelse,
+    CompExpr,
+};
+
+InputDecl: SStmt = {
+    "in " <id: Ident> <typ: TypeAnno?> => SStmt::Input(id, typ)
+};
+
+OutputDecl: SStmt = {
+    "out " <id: Ident> <typ: TypeAnno?> => SStmt::Output(id, typ),
+};
+
+AuxDecl: SStmt = {
+    "aux " <id: Ident> <typ: TypeAnno?> => SStmt::Aux(id, typ),
+};
+
+Assignment: SStmt  = {
+    <var: Ident> "=" <expr: Expr> => SStmt::Assignment(var, expr)
+}
+
+pub Stmt: SStmt = {
+    InputDecl,
+    OutputDecl,
+    Assignment
+}
+
+pub Stmts: EcoVec<SStmt> = {
+   Stmt* => <>.into()
+}
