@@ -6,11 +6,11 @@ import threading
 import time
 import logging
 
-REDIS_CHANNEL = 'orchestrator-control'
+
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 APPS_DIR = "."
 COMPOSE_NAME = os.environ.get("COMPOSE_NAME", "mycompose")  # Compose project name fallback
-
+REDIS_CHANNEL = f'{COMPOSE_NAME}-orchestrator'
 docker_client = docker.from_env()
 r = redis.Redis(host=REDIS_HOST, decode_responses=True)
 
@@ -141,6 +141,8 @@ def heartbeat_loop():
             for container in docker_client.containers.list(all=True):
                 name = container.name
                 status = container.status
+                if name not in nodes:
+                    continue
                 # health = container.attrs.get("State", {}).get("Health", {}).get("Status")
                 topic = f"devices:{COMPOSE_NAME}:{name}:status"
                 r.set(topic, status)
@@ -150,7 +152,7 @@ def heartbeat_loop():
         except Exception as e:
             logger.info(f"⚠️ Heartbeat error: {e}")
 
-        time.sleep(2)  # Adjust heartbeat interval as needed
+        time.sleep(1)  # Adjust heartbeat interval as needed
 
 if __name__ == "__main__":
     threading.Thread(target=listen_loop, daemon=True).start()

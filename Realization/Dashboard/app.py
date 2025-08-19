@@ -973,20 +973,20 @@ def handle_actions(add_proc_clicks, del_proc_clicks, add_comp_clicks, del_comp_c
         elif tid['type'] == 'run-comp-btn':
             device, comp = tid['proc'], tid['comp']
             msg = {"command": "up", "app": comp}
-            r.publish("orchestrator-control", json.dumps(msg))
+            r.publish(f"{device}-orchestrator", json.dumps(msg))
             logger.debug(f"Setting {device}:{comp} to running")
 
         elif tid['type'] == 'pause-comp-btn':
             device, comp = tid['proc'], tid['comp']
             msg = {"command": "down", "app": comp}
-            r.publish("orchestrator-control", json.dumps(msg))
+            r.publish(f"{device}-orchestrator", json.dumps(msg))
             logger.debug(f"Setting {device}:{comp} to paused")
 
         elif tid['type'] == 'del-proc-btn':
             device, comp = tid['proc'], tid['comp']
             msg = {"command": "remove", "app": comp}
             r.set(f'devices:{device}:{comp}:status', 'removed')
-            r.publish("orchestrator-control", json.dumps(msg))
+            r.publish(f"{device}-orchestrator", json.dumps(msg))
             logger.debug(f"Deleted device: {device}")
 
             # elif tid['type'] == 'del-comp-btn':
