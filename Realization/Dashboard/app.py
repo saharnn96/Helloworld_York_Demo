@@ -203,14 +203,14 @@ app.layout = html.Div([
                     'fontSize': '13px'
                 }
             ),
-            dcc.Graph(id="gantt-chart", style={'height': '320px'})
+            dcc.Graph(id="gantt-chart", style={'height': '370px'})
         ], style={
             'backgroundColor': '#ffffff',
             'padding': '15px',
             'borderRadius': '8px',
             'boxShadow': '0 2px 8px rgba(0, 0, 0, 0.08)',
             'border': '1px solid #e9ecef',
-            'height': '370px',
+            'height': '420px',
             'position': 'relative'  # anchor for absolute popup
         })
     ], style={'marginBottom': '15px'}),
@@ -366,11 +366,13 @@ app.layout = html.Div([
 def update_gantt(_):
     fig = go.Figure()
     phase_colors = {
-        "Monitor": "#3498db",
-        "Analyze": "#2ecc71", 
-        "Plan": "#f39c12",
-        "Execute": "#e74c3c",
-        "Knowledge": "#9b59b6"
+        "Monitor": "#3498db",      # Blue
+        "Analysis": "#f39c12",     # Orange  
+        "Plan": "#9b59b6",         # Purple
+        "Legitimate": "#e67e22",   # Dark Orange
+        "Execute": "#34495e",      # Dark Gray
+        "Knowledge": "#95a5a6",    # Light Gray
+        "Trustworthiness": "#16a085"  # Teal (keeping green/red for trust states)
     }
     
     device_names = r.lrange('devices:list', 0, -1)
@@ -577,6 +579,34 @@ def update_gantt(_):
                     logger.warning(f"Error processing {device}:{node} execution data: {e}")
                     continue
 
+    # Add invisible traces for legend (color guide)
+    legend_items = [
+        ("Monitor", "#3498db"),
+        ("Analysis", "#f39c12"),
+        ("Plan", "#9b59b6"),
+        ("Legitimate", "#e67e22"),
+        ("Execute", "#34495e"),
+        ("Knowledge", "#95a5a6"),
+        ("Trustworthiness", "#16a085"),
+        ("Trust OK", "#2ecc71"),
+        ("Trust Alert", "#e74c3c")
+    ]
+    
+    for name, color in legend_items:
+        fig.add_trace(go.Scatter(
+            x=[None],
+            y=[None],
+            mode='markers',
+            marker=dict(
+                size=10,
+                color=color,
+                symbol='square'
+            ),
+            name=name,
+            showlegend=True,
+            hoverinfo='skip'
+        ))
+
     # Sort y-axis labels to put trustworthiness at the top
     sorted_labels = sorted(y_labels)
     trust_label = "🛡️ Trustworthiness"
@@ -613,12 +643,23 @@ def update_gantt(_):
         },
         barmode="overlay",
         template="plotly_white",
-        showlegend=False,
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5,
+            bgcolor="rgba(255, 255, 255, 0.8)",
+            bordercolor="rgba(0, 0, 0, 0.2)",
+            borderwidth=1,
+            font=dict(size=10)
+        ),
         plot_bgcolor="rgba(248, 249, 250, 1)",
         paper_bgcolor="rgba(255, 255, 255, 1)",
         font={'family': '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif'},
-        margin={'l': 120, 'r': 20, 't': 60, 'b': 60},
-        height=300
+        margin={'l': 120, 'r': 20, 't': 100, 'b': 60},
+        height=350
     )
     
     fig.add_vline(
