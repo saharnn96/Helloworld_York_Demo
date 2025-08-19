@@ -75,7 +75,7 @@ services:
       - REDIS_HOST=redis
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=redis
-      - COMPOSE_NAME=myTestApp
+      - COMPOSE_NAME=PC1
       - NODES=turtlebot_simulator,dashboard,Analysis,Plan,Execute,Monitor,Trustworthiness, trustworthiness-checker
     networks:
       - rap_network
