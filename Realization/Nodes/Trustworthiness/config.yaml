@@ -24,6 +24,12 @@ eventIn:
   properties:
     - property:
         type: event
+        name: new_data
+        class: "-"
+        topic: /new_data
+        QoS: 10
+    - property:
+        type: event
         name: anomaly
         class: "-"
         topic: /anomaly
