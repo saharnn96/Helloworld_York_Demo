@@ -57,7 +57,6 @@ class Trustworthiness(Node):
     #     self.logger.info(msg)
 
     def register_callbacks(self):
-        self.register_event_callback(event_key='new_data', callback=self.t_m)     # LINK
         self.register_event_callback(event_key='anomaly', callback=self.t_a)     # LINK <eventTrigger> anomaly
         self.register_event_callback(event_key='new_plan', callback=self.t_p)
         self.register_event_callback(event_key='isLegit', callback=self.t_l)
