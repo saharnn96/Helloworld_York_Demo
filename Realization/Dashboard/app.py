@@ -450,6 +450,10 @@ def update_gantt(_):
                             exec_time = float(parts[1])
                             status = parts[2] if len(parts) > 2 else "completed"
                             
+                            # Only show executions with "running" status
+                            if status != "running":
+                                continue
+                            
                             # Calculate relative time positions
                             start_relative = now - start_exec
                             
@@ -464,17 +468,7 @@ def update_gantt(_):
                                 
                                 if bar_width > 0:
                                     # Color based on node type and status
-                                    node_color = phase_colors.get(node, "#95a5a6")
-                                    if status == "active" or status == "running":
-                                        node_color = phase_colors.get(node, "#27ae60")
-                                    elif status == "building":
-                                        node_color = "#f1c40f"
-                                    elif status == "error":
-                                        node_color = "#e67e22"
-                                    elif status == "completed":
-                                        # Use slightly faded color for completed executions
-                                        base_color = phase_colors.get(node, "#95a5a6")
-                                        node_color = base_color + "AA"  # Add transparency
+                                    node_color = phase_colors.get(node, "#27ae60")  # Green for running status
                                     
                                     y_label = f"{device}:{node}"
                                     y_labels.add(y_label)
@@ -525,6 +519,13 @@ def update_gantt(_):
                     
                     # Only process if not a duplicate
                     if not is_duplicate:
+                        # Get component status for color coding - only show if running
+                        status = r.get(f"devices:{device}:{node}:status")
+                        
+                        # Only show executions with "running" status
+                        if status != "running":
+                            continue
+                        
                         # Calculate relative time positions
                         start_relative = now - start_exec
                         
@@ -538,17 +539,8 @@ def update_gantt(_):
                                 bar_width = -bar_start
                             
                             if bar_width > 0:
-                                # Get component status for color coding
-                                status = r.get(f"devices:{device}:{node}:status")
-                                node_color = phase_colors.get(node, "#95a5a6")
-                                
-                                # Modify color based on status
-                                if status == "active" or status == "running":
-                                    node_color = phase_colors.get(node, "#27ae60")
-                                elif status == "building":
-                                    node_color = "#f1c40f"
-                                elif status == "error":
-                                    node_color = "#e67e22"
+                                # Use green color for running nodes
+                                node_color = phase_colors.get(node, "#27ae60")
                                 
                                 y_label = f"{device}:{node}"
                                 y_labels.add(y_label)
@@ -575,7 +567,7 @@ def update_gantt(_):
                                 logger.debug(f"Added NEW bar for {device}:{node} - start: {bar_start:.2f}, width: {bar_width:.2f}")
                             
                             # Store this NEW execution in history for future reference
-                            history_entry = f"{start_exec},{exec_time},{status or 'active'}"
+                            history_entry = f"{start_exec},{exec_time},{status or 'running'}"
                             r.lpush(f"devices:{device}:{node}:execution_history", history_entry)
                             # Keep only last 50 history entries per component
                             r.ltrim(f"devices:{device}:{node}:execution_history", 0, 49)
@@ -650,6 +642,7 @@ def update_processors(_):
     for device in device_names:
         heartbeat = r.get(f"devices:{device}:heartbeat")
         logger.debug(f"{device} heartbeat: {heartbeat}")
+        device_is_offline = False
         try:
             if heartbeat:
                 now = time.time()
@@ -661,17 +654,28 @@ def update_processors(_):
                 else:
                     online_status = "🔴 Offline"
                     online_color = "red"
+                    device_is_offline = True
             else:
                 online_status = "🔴 Offline (no heartbeat)"
                 online_color = "red"
+                device_is_offline = True
         except Exception as e:
             logger.warning(f"Exception for {device} heartbeat: {e}")
             online_status = "Unknown"
             online_color = "gray"
+            device_is_offline = True
 
         # Get components for this device
         nodes = r.lrange(f"devices:{device}:nodes", 0, -1)
         logger.debug(f"{device} nodes: {nodes}")
+        
+        # If device is offline, set all its nodes to stopped
+        if device_is_offline and nodes:
+            logger.info(f"Device {device} is offline, setting all nodes to stopped")
+            for node in nodes:
+                r.set(f"devices:{device}:{node}:status", "stopped")
+                logger.debug(f"Set {device}:{node} status to stopped due to device offline")
+        
         running_count = 0
         comp_list = []
         for node in nodes:
@@ -683,6 +687,12 @@ def update_processors(_):
                 status_color = "green"
                 running_count += 1
             elif status == "exited":
+                status_text = "⏸️ Stopped"
+                status_color = "orange"
+            elif status == "paused":
+                status_text = "⏸️ Paused"
+                status_color = "orange"
+            elif status == "stopped":
                 status_text = "⏸️ Stopped"
                 status_color = "orange"
             else:

@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copy application files
 COPY dash_turtlebotsim.py .
-COPY Turtlebotsim.py .
+
 
 # Create a non-root user for security
 RUN useradd --create-home --shell /bin/bash turtlebot && \
