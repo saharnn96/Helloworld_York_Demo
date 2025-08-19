@@ -60,6 +60,11 @@ _TRUST_TOPIC = 'maple'
 _TRUST_DISPLAY_SECONDS = float(os.getenv('TRUST_DISPLAY_SECONDS', '5'))  # show for 3–5s
 _TRUST_HISTORY_WINDOW = 60  # Keep trust events for 60 seconds
 
+# --- Loading state management for buttons ---
+_loading_states = {}  # Format: {f"{device}:{node}:{action}": timestamp}
+_loading_lock = threading.Lock()
+_LOADING_TIMEOUT = 30  # Maximum time to show loading state (30 seconds)
+
 
 def _parse_trust_payload(data):
     """Accepts JSON or plain strings; returns True/False/None."""
@@ -99,6 +104,51 @@ def _parse_trust_payload(data):
             return False
     # Unsupported
     return None
+
+
+def _set_loading_state(device, node, action):
+    """Set a loading state for a specific device:node:action combination."""
+    key = f"{device}:{node}:{action}"
+    with _loading_lock:
+        _loading_states[key] = time.time()
+    logger.debug(f"Set loading state for {key}")
+
+
+def _clear_loading_state(device, node, action):
+    """Clear a loading state for a specific device:node:action combination."""
+    key = f"{device}:{node}:{action}"
+    with _loading_lock:
+        _loading_states.pop(key, None)
+    logger.debug(f"Cleared loading state for {key}")
+
+
+def _is_loading(device, node, action):
+    """Check if a specific device:node:action is in loading state."""
+    key = f"{device}:{node}:{action}"
+    with _loading_lock:
+        if key not in _loading_states:
+            return False
+        # Check if loading state has timed out
+        elapsed = time.time() - _loading_states[key]
+        if elapsed > _LOADING_TIMEOUT:
+            _loading_states.pop(key, None)
+            logger.debug(f"Loading state timed out for {key}")
+            return False
+        return True
+
+
+def _cleanup_loading_states():
+    """Clean up expired loading states."""
+    current_time = time.time()
+    with _loading_lock:
+        expired_keys = [
+            key for key, timestamp in _loading_states.items()
+            if current_time - timestamp > _LOADING_TIMEOUT
+        ]
+        for key in expired_keys:
+            _loading_states.pop(key, None)
+        if expired_keys:
+            logger.debug(f"Cleaned up expired loading states: {expired_keys}")
 
 
 def _trust_listener():
@@ -677,6 +727,9 @@ def update_gantt(_):
 )
 def update_processors(_):
     import time
+    # Clean up expired loading states
+    _cleanup_loading_states()
+    
     device_names = r.lrange('devices:list', 0, -1)  # List of device names
     logger.debug(f"Devices in Redis: {device_names}")
     cards = []
@@ -723,6 +776,19 @@ def update_processors(_):
             status_key = f"devices:{device}:{node}:status"
             status = r.get(status_key)
             logger.debug(f"{device} component {node} status: {status}")
+            
+            # Check loading states
+            is_pausing = _is_loading(device, node, 'pause')
+            is_running_action = _is_loading(device, node, 'run')
+            
+            # Clear loading state if node has reached expected state
+            if is_pausing and status in ["stopped", "exited", "paused"]:
+                _clear_loading_state(device, node, 'pause')
+                is_pausing = False
+            if is_running_action and status == "running":
+                _clear_loading_state(device, node, 'run')
+                is_running_action = False
+            
             if status == "running":
                 status_text = "🟢 Running"
                 status_color = "green"
@@ -739,6 +805,36 @@ def update_processors(_):
             else:
                 status_text = "⚪ Removed"
                 status_color = "gray"
+                
+            # Prepare button styles based on loading states
+            run_button_style = {
+                'backgroundColor': '#95a5a6' if is_running_action else '#27ae60',
+                'color': 'white',
+                'border': 'none',
+                'borderRadius': '4px',
+                'padding': '4px 8px',
+                'marginRight': '4px',
+                'cursor': 'wait' if is_running_action else 'pointer',
+                'fontSize': '12px',
+                'opacity': '0.7' if is_running_action else '1'
+            }
+            
+            pause_button_style = {
+                'backgroundColor': '#95a5a6' if is_pausing else '#f39c12',
+                'color': 'white',
+                'border': 'none',
+                'borderRadius': '4px',
+                'padding': '4px 8px',
+                'marginRight': '4px',
+                'cursor': 'wait' if is_pausing else 'pointer',
+                'fontSize': '12px',
+                'opacity': '0.7' if is_pausing else '1'
+            }
+            
+            # Button content changes based on loading state
+            run_button_content = '⏳' if is_running_action else '▶️'
+            pause_button_content = '⏳' if is_pausing else '⏸️'
+            
             comp_list.append(html.Div([
                 html.Div([
                     # Left side: Node name and status
@@ -766,30 +862,14 @@ def update_processors(_):
                     
                     # Right side: Action buttons
                     html.Div([
-                        html.Button('▶️', 
+                        html.Button(run_button_content, 
                                    id={'type': 'run-comp-btn', 'proc': device, 'comp': node},
-                                   style={
-                                       'backgroundColor': '#27ae60',
-                                       'color': 'white',
-                                       'border': 'none',
-                                       'borderRadius': '4px',
-                                       'padding': '4px 8px',
-                                       'marginRight': '4px',
-                                       'cursor': 'pointer',
-                                       'fontSize': '12px'
-                                   }),
-                        html.Button('⏸️', 
+                                   disabled=is_running_action,
+                                   style=run_button_style),
+                        html.Button(pause_button_content, 
                                    id={'type': 'pause-comp-btn', 'proc': device, 'comp': node},
-                                   style={
-                                       'backgroundColor': '#f39c12',
-                                       'color': 'white',
-                                       'border': 'none',
-                                       'borderRadius': '4px',
-                                       'padding': '4px 8px',
-                                       'marginRight': '4px',
-                                       'cursor': 'pointer',
-                                       'fontSize': '12px'
-                                   }),
+                                   disabled=is_pausing,
+                                   style=pause_button_style),
                         html.Button('❌', 
                                    id={'type': 'del-comp-btn', 'proc': device, 'comp': node}, 
                                    disabled=True,
@@ -972,12 +1052,16 @@ def handle_actions(add_proc_clicks, del_proc_clicks, add_comp_clicks, del_comp_c
             pass
         elif tid['type'] == 'run-comp-btn':
             device, comp = tid['proc'], tid['comp']
+            # Set loading state for run action
+            _set_loading_state(device, comp, 'run')
             msg = {"command": "up", "app": comp}
             r.publish(f"{device}-orchestrator", json.dumps(msg))
             logger.debug(f"Setting {device}:{comp} to running")
 
         elif tid['type'] == 'pause-comp-btn':
             device, comp = tid['proc'], tid['comp']
+            # Set loading state for pause action
+            _set_loading_state(device, comp, 'pause')
             msg = {"command": "down", "app": comp}
             r.publish(f"{device}-orchestrator", json.dumps(msg))
             logger.debug(f"Setting {device}:{comp} to paused")

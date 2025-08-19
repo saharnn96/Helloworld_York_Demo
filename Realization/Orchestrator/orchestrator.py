@@ -152,7 +152,7 @@ def heartbeat_loop():
         except Exception as e:
             logger.info(f"⚠️ Heartbeat error: {e}")
 
-        time.sleep(1)  # Adjust heartbeat interval as needed
+        time.sleep(2)  # Adjust heartbeat interval as needed
 
 if __name__ == "__main__":
     threading.Thread(target=listen_loop, daemon=True).start()
