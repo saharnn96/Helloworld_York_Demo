@@ -43,11 +43,11 @@ class Trustworthiness(Node):
     def t_p(self, msg):
 
         self.publish_event("stage", {'Str': 'p'})
-        time.sleep(0.1)
-        self.publish_event("stage", {'Str': 'l'})
+        # time.sleep(0.1)
+        # self.publish_event("stage", {'Str': 'l'})
 
     def t_l(self, msg):
-        # self.publish_event("stage", {'Str': 'l'})
+        self.publish_event("stage", {'Str': 'l'})
         pass
     def t_e(self, msg):
         self.publish_event("stage", {'Str': 'e'})

@@ -6,12 +6,14 @@
 # * RAP R&D concepts can not be copied and/or distributed without the express
 # * permission of Bert Van Acker
 # **********************************************************************************
-from rpclpy.node import Node
-from .messages import *
-from rpio.clientLibraries.rpclpy.utils import timeit_callback
-import time
-#<!-- cc_include START--!>
+from rpio.clientLibraries.rpclpy.node import Node
 import json
+import time
+import yaml
+from rpio.clientLibraries.rpclpy.utils import timeit_callback
+from messages import *
+#<!-- cc_include START--!>
+
 #<!-- cc_include END--!>
 
 #<!-- cc_code START--!>
@@ -32,26 +34,26 @@ class Legitimate(Node):
     # -----------------------------AUTO-GEN SKELETON FOR executer-----------------------------
     @timeit_callback
     def legitimate(self,msg):
-        directions = self.read_knowledge("directions",queueSize=1)
-        _Direction = Direction()
-
-        #<!-- cc_code_executer START--!>
-
-        # user code here for executer
-
-
-        #<!-- cc_code_executer END--!>
-        for i in range(5):
-            self.logger.info("Legitimating")
-            time.sleep(0.1)
-        self.publish_event(PlanisLegit)    # LINK <outport> spin_config
+        self.logger.info("Received new_plan event, starting legitimacy check...")
+        
+        # Wait for 1 second as requested
+        time.sleep(0.1)
+        
+        # Trigger the isLegit event
+        self.publish_event(PlanisLegit)
+        self.logger.info("Published isLegit event after 1 second delay")
 
     def register_callbacks(self):
         self.register_event_callback(event_key='new_plan', callback=self.legitimate)        # LINK <inport> new_plan
 
 def main(args=None):
-
-    node = Legitimate(config='config.yaml')
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+    except:
+        raise Exception("Config file not found")
+    node = Legitimate(config=config)
+    node.register_callbacks()
     node.start()
 
 if __name__ == '__main__':

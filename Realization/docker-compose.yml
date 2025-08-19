@@ -76,7 +76,7 @@ services:
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=redis
       - COMPOSE_NAME=PC1
-      - NODES=turtlebot_simulator,dashboard,Analysis,Plan,Execute,Monitor,Trustworthiness, trustworthiness-checker
+      - NODES=turtlebot_simulator,dashboard,Analysis,Plan,Execute,Monitor,Legitimate,Trustworthiness, trustworthiness-checker
     networks:
       - rap_network
 
@@ -125,6 +125,18 @@ services:
         condition: service_healthy
     environment:
       - REDIS_HOST=redis  
+    restart: unless-stopped
+    networks:
+      - rap_network
+
+  legitimate:
+    build: ./Nodes/Legitimate
+    container_name: Legitimate
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
     restart: unless-stopped
     networks:
       - rap_network

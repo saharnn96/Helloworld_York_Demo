@@ -123,5 +123,5 @@ class HandlingAnomalyData(object):
 
     @property
     def HandlingAnomaly(self, cmp):
-        """The NewPlan (read-only)."""
+        """The HandlingAnomaly (read-only)."""
         self._anomaly = cmp

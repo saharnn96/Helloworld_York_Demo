@@ -1,35 +1,42 @@
-logger:
-  endpoints:
-    - endpoint:
-        type: "logging"
-        name: "RemoteLog"
-        class: "LogMessage"
-        topic: "/RemoteLog"
-        QoS: 10
+Logger_Config:
+  log_level: DEBUG
+  logger_type: redis
+  format: "%(asctime)s} - %(name)s - %(levelname)s - %(message)s" # same format as others; adjust if needed
+  terminal: {}
+  file:
+    filename: MAPLE.log
+  mqtt:
+    broker: redis
+    port: 1883
+    topic: logs
+  redis:
+    host: redis
+    port: 6379
+    channel: legitimate:logs
 
 knowledgeIn:
-  properties:
+  properties: null
 
 knowledgeOut:
-  properties:
+  properties: null
 
 eventIn:
   properties:
     - property:
-        type: "event"
-        name: "new_plan"
+        type: event
+        name: new_plan
         class: "-"
-        topic: "/new_plan"
+        topic: /new_plan
         QoS: 10
 
 
 eventOut:
   properties:
     - property:
-        type: "legitimate"
-        name: "isLegit"
+        type: event
+        name: isLegit
         class: "-"
-        topic: "/isLegit"
+        topic: isLegit
         QoS: 10
 
 
@@ -42,16 +49,18 @@ mqtt_subscribe_topics:
 mqtt_publish_topics:
   - "monitor/event"
 
-redis_host: "localhost"
-redis_port: 6379
+Event_Manager_Config:
+  protocol: redis
+  host: redis
+  port: 6379
 
-logging:
-  level: "DEBUG"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "MAPE_test.log"
+Message_Manager_Config:
+  protocol: redis
+  host: redis
+  port: 6379
 
-knowledge_config:
-  storage_type: "global"
-  redis_host: "localhost"
-  redis_port: 6379
-  redis_db: 0
+Knowledge_Config:
+  knowledge_type: redis
+  host: redis
+  port: 6379
+  db: 0
