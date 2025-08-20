@@ -296,9 +296,7 @@ app.layout = html.Div([
                         'display': 'flex', 
                         'flexDirection': 'row',
                         'gap': '8px',
-                        'maxHeight': '280px',
                         'overflowX': 'auto',
-                        'overflowY': 'hidden',
                         'paddingBottom': '5px'
                     })
         ], style={
@@ -306,8 +304,7 @@ app.layout = html.Div([
             'padding': '15px',
             'borderRadius': '8px',
             'boxShadow': '0 2px 8px rgba(0, 0, 0, 0.08)',
-            'border': '1px solid #e9ecef',
-            'height': '330px'
+            'border': '1px solid #e9ecef'
         })
     ], style={'marginBottom': '15px'}),
 
@@ -402,11 +399,9 @@ app.layout = html.Div([
 ], style={
     'backgroundColor': '#f5f6fa',
     'minHeight': '100vh',
-    'maxHeight': '100vh',
     'padding': '10px',
     'margin': '0',
-    'fontFamily': '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-    'overflow': 'hidden'
+    'fontFamily': '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif'
 })
 
 @app.callback(
@@ -696,8 +691,8 @@ def update_gantt(_):
         showlegend=True,
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
+            yanchor="top",
+            y=-0.30,
             xanchor="center",
             x=0.5,
             bgcolor="rgba(255, 255, 255, 0.8)",
@@ -708,7 +703,7 @@ def update_gantt(_):
         plot_bgcolor="rgba(248, 249, 250, 1)",
         paper_bgcolor="rgba(255, 255, 255, 1)",
         font={'family': '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif'},
-        margin={'l': 120, 'r': 20, 't': 100, 'b': 60},
+        margin={'l': 120, 'r': 20, 't': 60, 'b': 80},
         height=350
     )
     
@@ -972,8 +967,6 @@ def update_processors(_):
                     'fontWeight': '600'
                 }),
                 html.Div(comp_list, style={
-                    'maxHeight': '220px',       # Increased height to show more nodes
-                    'overflowY': 'auto',
                     'paddingRight': '5px'
                 })
             ]),
@@ -1001,7 +994,6 @@ def update_processors(_):
             'padding': '15px',
             'boxShadow': '0 2px 8px rgba(0, 0, 0, 0.1)',
             'transition': 'transform 0.2s ease, box-shadow 0.2s ease',
-            'minHeight': '320px',       # Changed to minHeight to allow expansion
             'minWidth': '320px',        # Increased minimum width for longer names
             'maxWidth': '420px',        # Increased max width to accommodate longer names
             'flex': '0 0 auto',

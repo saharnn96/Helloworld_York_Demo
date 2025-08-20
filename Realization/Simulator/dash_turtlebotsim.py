@@ -303,25 +303,24 @@ app.layout = dbc.Container([
             ])
         ], width=3),
         
-        # Visualization Panel
+        # Visualization Panel (Map + LiDAR)
         dbc.Col([
+            # Map visualization
             dbc.Card([
                 dbc.CardHeader("Simulation Visualization"),
                 dbc.CardBody([
-                    dcc.Graph(id="map-plot", style={"height": "500px"}),
+                    dcc.Graph(id="map-plot", style={"height": "400px"}),
                 ])
-            ])
-        ], width=6),
-        
-        # LiDAR Panel
-        dbc.Col([
+            ], className="mb-3"),
+            
+            # LiDAR visualization
             dbc.Card([
                 dbc.CardHeader("LiDAR Data"),
                 dbc.CardBody([
-                    dcc.Graph(id="lidar-plot", style={"height": "500px"}),
+                    dcc.Graph(id="lidar-plot", style={"height": "400px"}),
                 ])
             ])
-        ], width=3),
+        ], width=9),
     ]),
     
     # Auto-refresh interval
@@ -408,7 +407,7 @@ def update_plots(n):
         xaxis=dict(range=[-sim.map_size, sim.map_size]),
         yaxis=dict(range=[-sim.map_size, sim.map_size]),
         showlegend=True,
-        height=450,
+        height=350,
         hovermode='closest'
     )
     
@@ -431,7 +430,7 @@ def update_plots(n):
             radialaxis=dict(range=[0, 10], showticklabels=True),
             angularaxis=dict(direction="counterclockwise", period=360)
         ),
-        height=450
+        height=350
     )
     
     # Status updates
