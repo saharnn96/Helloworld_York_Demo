@@ -1176,7 +1176,7 @@ def update_log(_, selected_sources):
         # If no sources selected or None, try to show default log
         if not selected_sources:
             if r.exists('log'):
-                logs = r.lrange('log', -10, -1)
+                logs = r.lrange('log', 0, 9)
                 if logs:
                     return '\n'.join(logs)
             return "No log sources selected. Please select log sources from the checklist above."
@@ -1185,8 +1185,8 @@ def update_log(_, selected_sources):
         
         for source in selected_sources:
             try:
-                # Get logs from each source (latest 10 entries per source)
-                logs = r.lrange(source, -10, -1)
+                # Get logs from each source (first 10 entries per source)
+                logs = r.lrange(source, 0, 9)
                 if logs:
                     # Add source prefix to each log entry
                     source_name = source.replace(':logs', '') if source.endswith(':logs') else source
@@ -1200,9 +1200,9 @@ def update_log(_, selected_sources):
                 continue
         
         if all_logs:
-            # Get the latest 10 entries from all combined logs
-            latest_logs = all_logs[-10:] if len(all_logs) > 10 else all_logs
-            return '\n'.join(latest_logs)
+            # Get the first 10 entries from all combined logs
+            first_logs = all_logs[:10] if len(all_logs) > 10 else all_logs
+            return '\n'.join(first_logs)
         else:
             return "No logs found in selected sources."
             

@@ -41,7 +41,7 @@ class RedisHandler(logging.Handler):
     def emit(self, record):
         try:
             log_entry = self.format(record)
-            r.rpush(self.redis_key, log_entry)
+            r.lpush(self.redis_key, log_entry)
         except Exception:
             self.handleError(record)
 
